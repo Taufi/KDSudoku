@@ -31,6 +31,9 @@
                                 <state key="normal" image="camera">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="takePicture" destination="BYZ-38-t0r" eventType="touchUpInside" id="B9j-4p-mMf"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uiK-2M-VYt">
                                 <rect key="frame" x="87.5" y="587" width="60" height="60"/>
@@ -41,6 +44,9 @@
                                 <state key="normal" image="picture">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="choosePhoto" destination="BYZ-38-t0r" eventType="touchUpInside" id="Xl3-5l-gDH"/>
+                                </connections>
                             </button>
                             <visualEffectView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FkF-wO-Ao3">
                                 <rect key="frame" x="102" y="30" width="171" height="37"/>
@@ -81,6 +87,14 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="ARr-an-pDj"/>
                     </view>
+                    <connections>
+                        <outlet property="cameraButton" destination="37u-aU-sVT" id="QbF-b6-ALi"/>
+                        <outlet property="imageView" destination="lqe-CH-KtC" id="pU8-Ib-lnX"/>
+                        <outlet property="photoLibraryButton" destination="uiK-2M-VYt" id="N07-iJ-0yg"/>
+                        <outlet property="resultsConstraint" destination="JRs-Hl-ms6" id="cjz-eH-cNM"/>
+                        <outlet property="resultsLabel" destination="ksW-JO-KH4" id="BdZ-XV-h7Z"/>
+                        <outlet property="resultsView" destination="FkF-wO-Ao3" id="mI2-Hc-MDo"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

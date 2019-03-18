@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import CoreML
+import Vision
 
 class ViewController: UIViewController {
 
@@ -18,6 +20,24 @@ class ViewController: UIViewController {
   @IBOutlet var resultsConstraint: NSLayoutConstraint!
   
   var firstTime = true
+  
+  lazy var classificationRequest: VNCoreMLRequest = {
+    do {
+      //    let healthySnacks = HealthySnacks()
+      //    let multiSnacks = MultiSnacks()
+      let model = numbers()
+      let visionModel = try VNCoreMLModel(for: model.model)
+      let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
+        print("Request beendet", request.results)
+//        self?.processObservations(for: request, error: error)
+      })
+      request.imageCropAndScaleOption = .centerCrop
+      return request
+    } catch {
+      fatalError("Fehler beim Erzeugen des VNCoreMLModel: \(error) ")
+    }
+  }()
+
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -76,6 +96,19 @@ class ViewController: UIViewController {
   }
   
   func classify(image: UIImage) {
+    guard let ciImage = CIImage(image: image) else {
+      print("Kann keine CIImage erzeugen")
+      return
+    }
+    let orientation = CGImagePropertyOrientation(image.imageOrientation)
+    DispatchQueue.global(qos: .userInitiated).async {
+      let handler = VNImageRequestHandler(ciImage: ciImage, orientation: orientation)
+      do {
+        try handler.perform([self.classificationRequest])
+      } catch {
+        print("Fehler in der Klassifikation: \(error)")
+      }
+    }
   }
 }
 
