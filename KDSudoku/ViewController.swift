@@ -28,8 +28,8 @@ class ViewController: UIViewController {
       let model = numbers()
       let visionModel = try VNCoreMLModel(for: model.model)
       let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
-        print("Request beendet", request.results)
-//        self?.processObservations(for: request, error: error)
+//        print("Request beendet", request.results)
+        self?.processObservations(for: request, error: error)
       })
       request.imageCropAndScaleOption = .centerCrop
       return request
@@ -108,6 +108,33 @@ class ViewController: UIViewController {
       } catch {
         print("Fehler in der Klassifikation: \(error)")
       }
+    }
+  }
+  
+  func processObservations(for request: VNRequest, error: Error?) {
+    DispatchQueue.main.async {
+      if let results = request.results as? [VNClassificationObservation] {
+        if results.isEmpty {
+          self.resultsLabel.text = "nichts gefunden"
+          //        } else if results[0].confidence < 0.8 {
+          //          print(results[0].confidence)
+          //          self.resultsLabel.text = "nicht sicher"
+        } else {
+          //          let top3 = results.prefix(3).map { observation in
+          //            String(format: "%@ %.1f%%", observation.identifier, observation.confidence * 100)
+          //          }
+          //          let result = results[0].identifier == "healthy" ? "gesund" : "ungesund"
+          ////          self.resultsLabel.text = String(format: "%@ %.1f%%", result, results[0].confidence * 100)
+          self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
+//           self.resultsLabel.text = String(format: "%@", results[0].identifier)
+          //          self.resultsLabel.text = top3.joined(separator: "\n")
+        }
+      } else if let error = error {
+        self.resultsLabel.text = "Fehler: \(error.localizedDescription)"
+      } else {
+        self.resultsLabel.text = "???"
+      }
+      self.showResultsView()
     }
   }
 }
