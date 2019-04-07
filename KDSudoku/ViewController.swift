@@ -23,12 +23,9 @@ class ViewController: UIViewController {
   
   lazy var classificationRequest: VNCoreMLRequest = {
     do {
-      //    let healthySnacks = HealthySnacks()
-      //    let multiSnacks = MultiSnacks()
       let model = numbers()
       let visionModel = try VNCoreMLModel(for: model.model)
       let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
-//        print("Request beendet", request.results)
         self?.processObservations(for: request, error: error)
       })
       request.imageCropAndScaleOption = .centerCrop
@@ -43,7 +40,7 @@ class ViewController: UIViewController {
     super.viewDidLoad()
     cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
     resultsView.alpha = 0
-    resultsLabel.text = "choose or take a photo"
+    resultsLabel.text = "choose or take a sudoku photo"
   }
   
   override func viewDidAppear(_ animated: Bool) {
