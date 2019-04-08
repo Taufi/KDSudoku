@@ -24,6 +24,7 @@ class ViewController: UIViewController {
   
   lazy var classificationRequest: VNCoreMLRequest = {
     do {
+      //KD 190508 model von hier: https://github.com/patrykscheffler/sudoku-solver
       let model = numbers()
       let visionModel = try VNCoreMLModel(for: model.model)
       let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
@@ -160,9 +161,9 @@ class ViewController: UIViewController {
     
     guard let cg = image.cgImage else { return }
     let factor = CGFloat(cg.width) / image.size.width
-    let crop = CGRect(x: originX * factor, y: originY * factor, width: width * factor, height: height * factor)
+    let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
     if let cropImage = cg.cropping(to: crop) {
-      
+      classify(image: UIImage(cgImage: cropImage))
       // Since handlers are executing on a background thread, explicitly draw image on the main thread.
       DispatchQueue.main.async {
         self.imageView.image = nil
@@ -176,7 +177,7 @@ class ViewController: UIViewController {
     
     // Set a default value for limiting image size.
     let maxResolution: CGFloat = 640
-    //    let maxResolution: CGFloat = 1280
+//        let maxResolution: CGFloat = 1280
     
     guard let cgImage = image.cgImage else {
       print("UIImage has no CGImage backing it!")
