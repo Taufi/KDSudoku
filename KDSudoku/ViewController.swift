@@ -26,6 +26,7 @@ class ViewController: UIViewController {
     do {
       //KD 190508 model von hier: https://github.com/patrykscheffler/sudoku-solver
       let model = numbers()
+//      let model = MNIST()
       let visionModel = try VNCoreMLModel(for: model.model)
       let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
         self?.processObservations(for: request, error: error)
@@ -125,6 +126,9 @@ class ViewController: UIViewController {
           //          let result = results[0].identifier == "healthy" ? "gesund" : "ungesund"
           ////          self.resultsLabel.text = String(format: "%@ %.1f%%", result, results[0].confidence * 100)
           self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
+          for i in 0..<9 {
+            print(String(format: "Zu %.1f%% eine %@", results[i].confidence * 100, results[i].identifier))
+          }
 //           self.resultsLabel.text = String(format: "%@", results[0].identifier)
           //          self.resultsLabel.text = top3.joined(separator: "\n")
         }
@@ -163,11 +167,15 @@ class ViewController: UIViewController {
     let factor = CGFloat(cg.width) / image.size.width
     let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
     if let cropImage = cg.cropping(to: crop) {
-      classify(image: UIImage(cgImage: cropImage))
+     
+      let uiImage = UIImage(cgImage: cropImage)
+      classify(image: uiImage)
       // Since handlers are executing on a background thread, explicitly draw image on the main thread.
       DispatchQueue.main.async {
         self.imageView.image = nil
-        self.imageView.image = UIImage(cgImage: cropImage)
+        self.imageView.image = uiImage
+        self.saveImage(image: uiImage, imageName: "number.png")
+//        self.saveImage(cgImage: cropImage, imageName: "number.png")
       }
     }
   }
@@ -267,6 +275,20 @@ class ViewController: UIViewController {
       alertController.addAction(okAction)
       self.present(alertController, animated: true, completion: nil)
     }
+  }
+  
+  func saveImage(image: UIImage, imageName: String){
+    
+    //create an instance of the FileManager
+    let fileManager = FileManager.default
+    //get the image path
+    let imagePath = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString).appendingPathComponent(imageName)
+    //get the image we took with camera
+//    let image = imageView.image!
+    //get the PNG data for this image
+    let data = image.pngData()
+    //store it in the document directory
+    fileManager.createFile(atPath: imagePath as String, contents: data, attributes: nil)
   }
   
 }
