@@ -14,6 +14,9 @@
 		613491A822401E0900D4BF57 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 613491A622401E0900D4BF57 /* LaunchScreen.storyboard */; };
 		613491B022401FC700D4BF57 /* CGImagePropertyOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613491AF22401FC700D4BF57 /* CGImagePropertyOrientation.swift */; };
 		613491B2224021D800D4BF57 /* numbers.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 613491B1224021D800D4BF57 /* numbers.mlmodel */; };
+		61A9561922621964003CFEC9 /* MNIST.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 61A9561822621964003CFEC9 /* MNIST.mlmodel */; };
+		61A9561B22621A92003CFEC9 /* Alphanum.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 61A9561A22621A92003CFEC9 /* Alphanum.mlmodel */; };
+		61A9561D22621BF0003CFEC9 /* mnistCNN.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 61A9561C22621BF0003CFEC9 /* mnistCNN.mlmodel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +29,9 @@
 		613491A922401E0900D4BF57 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		613491AF22401FC700D4BF57 /* CGImagePropertyOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImagePropertyOrientation.swift; sourceTree = "<group>"; };
 		613491B1224021D800D4BF57 /* numbers.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = numbers.mlmodel; sourceTree = "<group>"; };
+		61A9561822621964003CFEC9 /* MNIST.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = MNIST.mlmodel; sourceTree = "<group>"; };
+		61A9561A22621A92003CFEC9 /* Alphanum.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Alphanum.mlmodel; sourceTree = "<group>"; };
+		61A9561C22621BF0003CFEC9 /* mnistCNN.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = mnistCNN.mlmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +64,10 @@
 		6134919C22401E0500D4BF57 /* KDSudoku */ = {
 			isa = PBXGroup;
 			children = (
+				61A9561A22621A92003CFEC9 /* Alphanum.mlmodel */,
 				613491B1224021D800D4BF57 /* numbers.mlmodel */,
+				61A9561822621964003CFEC9 /* MNIST.mlmodel */,
+				61A9561C22621BF0003CFEC9 /* mnistCNN.mlmodel */,
 				6134919D22401E0500D4BF57 /* AppDelegate.swift */,
 				6134919F22401E0500D4BF57 /* ViewController.swift */,
 				613491A122401E0500D4BF57 /* Main.storyboard */,
@@ -144,8 +153,11 @@
 			files = (
 				613491A022401E0500D4BF57 /* ViewController.swift in Sources */,
 				613491B022401FC700D4BF57 /* CGImagePropertyOrientation.swift in Sources */,
+				61A9561B22621A92003CFEC9 /* Alphanum.mlmodel in Sources */,
 				6134919E22401E0500D4BF57 /* AppDelegate.swift in Sources */,
+				61A9561922621964003CFEC9 /* MNIST.mlmodel in Sources */,
 				613491B2224021D800D4BF57 /* numbers.mlmodel in Sources */,
+				61A9561D22621BF0003CFEC9 /* mnistCNN.mlmodel in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -23,7 +23,8 @@ class ViewController: UIViewController {
   
   lazy var classificationRequest: VNCoreMLRequest = {
     do {
-      let model = numbers()
+//      let model = numbers()
+      let model = mnistCNN()
       let visionModel = try VNCoreMLModel(for: model.model)
       let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
         self?.processObservations(for: request, error: error)
@@ -123,6 +124,10 @@ class ViewController: UIViewController {
           //          let result = results[0].identifier == "healthy" ? "gesund" : "ungesund"
           ////          self.resultsLabel.text = String(format: "%@ %.1f%%", result, results[0].confidence * 100)
           self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
+          for i in 0..<9 {
+              print(String(format: "Zu %.1f%% eine %@", results[i].confidence * 100, results[i].identifier))
+          }
+          
 //           self.resultsLabel.text = String(format: "%@", results[0].identifier)
           //          self.resultsLabel.text = top3.joined(separator: "\n")
         }
