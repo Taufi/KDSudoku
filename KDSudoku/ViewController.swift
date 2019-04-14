@@ -19,12 +19,14 @@ class ViewController: UIViewController {
   @IBOutlet var resultsLabel: UILabel!
   @IBOutlet var resultsConstraint: NSLayoutConstraint!
   
+  var sudokuImage: UIImage?
   var firstTime = true
   
   lazy var classificationRequest: VNCoreMLRequest = {
     do {
+      //KD 190508 model von hier: https://github.com/patrykscheffler/sudoku-solver
       let model = numbers()
-//      let model = mnistCNN()
+//      let model = MNIST()
       let visionModel = try VNCoreMLModel(for: model.model)
       let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
         self?.processObservations(for: request, error: error)
@@ -125,7 +127,7 @@ class ViewController: UIViewController {
           ////          self.resultsLabel.text = String(format: "%@ %.1f%%", result, results[0].confidence * 100)
           self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
           for i in 0..<9 {
-              print(String(format: "Zu %.1f%% eine %@", results[i].confidence * 100, results[i].identifier))
+            print(String(format: "Zu %.1f%% eine %@", results[i].confidence * 100, results[i].identifier))
           }
           
 //           self.resultsLabel.text = String(format: "%@", results[0].identifier)
@@ -139,29 +141,202 @@ class ViewController: UIViewController {
       self.showResultsView()
     }
   }
+  
+  func handleDetectedRectangles(request: VNRequest?, error: Error?) {
+    if let nsError = error as NSError? {
+      self.presentAlert("Rectangle Detection Error", error: nsError)
+      return
+    }
+    
+    guard
+      let results = request?.results as? [VNRectangleObservation],
+      let rect = results.first,
+      let image = self.sudokuImage
+      else {
+        print("Bäääääää")
+        return }
+    
+    let imageWidth = image.size.width
+    let imageHeight = image.size.height
+    let originX = rect.topLeft.x * imageWidth
+    let originY = (1 - rect.topLeft.y) * imageHeight
+    let width = (rect.topRight.x - rect.topLeft.x) * imageWidth
+    let height = (rect.topLeft.y - rect.bottomLeft.y) * imageHeight
+    
+    
+    guard let cg = image.cgImage else { return }
+    let factor = CGFloat(cg.width) / image.size.width
+//    let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
+ let crop = CGRect(x: originX * factor , y: originY * factor, width: width / 8 * factor, height: height * factor / 8)
+    if let cropImage = cg.cropping(to: crop) {
+     
+      let uiImage = UIImage(cgImage: cropImage)
+      classify(image: uiImage)
+      // Since handlers are executing on a background thread, explicitly draw image on the main thread.
+      DispatchQueue.main.async {
+        self.imageView.image = nil
+        self.imageView.image = uiImage
+        self.saveImage(image: uiImage, imageName: "number.png")
+//        self.saveImage(cgImage: cropImage, imageName: "number.png")
+      }
+    }
+  }
+  
+  /// - Tag: PreprocessImage
+  func scaleAndOrient(image: UIImage) -> UIImage {
+    
+    // Set a default value for limiting image size.
+    let maxResolution: CGFloat = 640
+//        let maxResolution: CGFloat = 1280
+    
+    guard let cgImage = image.cgImage else {
+      print("UIImage has no CGImage backing it!")
+      return image
+    }
+    
+    // Compute parameters for transform.
+    let width = CGFloat(cgImage.width)
+    let height = CGFloat(cgImage.height)
+    var transform = CGAffineTransform.identity
+    
+    var bounds = CGRect(x: 0, y: 0, width: width, height: height)
+    
+    if width > maxResolution ||
+      height > maxResolution {
+      let ratio = width / height
+      if width > height {
+        bounds.size.width = maxResolution
+        bounds.size.height = round(maxResolution / ratio)
+      } else {
+        bounds.size.width = round(maxResolution * ratio)
+        bounds.size.height = maxResolution
+      }
+    }
+    
+    let scaleRatio = bounds.size.width / width
+    let orientation = image.imageOrientation
+    switch orientation {
+    case .up:
+      transform = .identity
+    case .down:
+      transform = CGAffineTransform(translationX: width, y: height).rotated(by: .pi)
+    case .left:
+      let boundsHeight = bounds.size.height
+      bounds.size.height = bounds.size.width
+      bounds.size.width = boundsHeight
+      transform = CGAffineTransform(translationX: 0, y: width).rotated(by: 3.0 * .pi / 2.0)
+    case .right:
+      //          transform = .identity
+      let boundsHeight = bounds.size.height
+      bounds.size.height = bounds.size.width
+      bounds.size.width = boundsHeight
+      transform = CGAffineTransform(translationX: height, y: 0).rotated(by: .pi / 2.0)
+    case .upMirrored:
+      transform = CGAffineTransform(translationX: width, y: 0).scaledBy(x: -1, y: 1)
+    case .downMirrored:
+      transform = CGAffineTransform(translationX: 0, y: height).scaledBy(x: 1, y: -1)
+    case .leftMirrored:
+      let boundsHeight = bounds.size.height
+      bounds.size.height = bounds.size.width
+      bounds.size.width = boundsHeight
+      transform = CGAffineTransform(translationX: height, y: width).scaledBy(x: -1, y: 1).rotated(by: 3.0 * .pi / 2.0)
+    case .rightMirrored:
+      let boundsHeight = bounds.size.height
+      bounds.size.height = bounds.size.width
+      bounds.size.width = boundsHeight
+      transform = CGAffineTransform(scaleX: -1, y: 1).rotated(by: .pi / 2.0)
+    @unknown default:
+      fatalError("Unknown Value in Image Orientation")
+    }
+    
+    return UIGraphicsImageRenderer(size: bounds.size).image { rendererContext in
+      let context = rendererContext.cgContext
+      
+      if orientation == .right || orientation == .left {
+        context.scaleBy(x: -scaleRatio, y: scaleRatio)
+        context.translateBy(x: -height, y: 0)
+      } else {
+        context.scaleBy(x: scaleRatio, y: -scaleRatio)
+        context.translateBy(x: 0, y: -height)
+      }
+      context.concatenate(transform)
+      context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+    }
+  }
+  
+  func presentAlert(_ title: String, error: NSError) {
+    // Always present alert on main thread.
+    DispatchQueue.main.async {
+      let alertController = UIAlertController(title: title,
+                                              message: error.localizedDescription,
+                                              preferredStyle: .alert)
+      let okAction = UIAlertAction(title: "OK",
+                                   style: .default) { _ in
+                                    // Do nothing -- simply dismiss alert.
+      }
+      alertController.addAction(okAction)
+      self.present(alertController, animated: true, completion: nil)
+    }
+  }
+  
+  func saveImage(image: UIImage, imageName: String){
+    
+    //create an instance of the FileManager
+    let fileManager = FileManager.default
+    //get the image path
+    let imagePath = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString).appendingPathComponent(imageName)
+    //get the image we took with camera
+//    let image = imageView.image!
+    //get the PNG data for this image
+    let data = image.pngData()
+    //store it in the document directory
+    fileManager.createFile(atPath: imagePath as String, contents: data, attributes: nil)
+  }
+  
 }
 
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+  
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-    // Local variable inserted by Swift 4.2 migrator.
-    let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
+    guard let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else { return }
     
-    picker.dismiss(animated: true)
+    sudokuImage = scaleAndOrient(image: originalImage)
     
-    let image = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.originalImage)] as! UIImage
-    imageView.image = image
+    //KD 190406 In den folgenden zwei statements könnte ich auch sudokuImage verwenden, da Vison die Koordinaten des entdeckten Rechtecks in relativen Werten (zwischen 0.0 und 1.0) zurückgibt
+    let cgOrientation = CGImagePropertyOrientation(originalImage.imageOrientation)
     
-    classify(image: image)
+    // Fire off request based on URL of chosen photo.
+    guard let cgImage = originalImage.cgImage else {
+      return
+    }
+    
+    let rectDetectRequest = VNDetectRectanglesRequest(completionHandler: self.handleDetectedRectangles)
+    
+    // Customize & configure the request to detect only certain rectangles.
+    rectDetectRequest.maximumObservations = 8 // Vision currently supports up to 16.
+    rectDetectRequest.minimumConfidence = 0.6 // Be confident.
+    rectDetectRequest.minimumAspectRatio = 0.3 // height / width
+    
+    let requests = [rectDetectRequest]
+    
+    let imageRequestHandler = VNImageRequestHandler(cgImage: cgImage,
+                                                    orientation: cgOrientation,
+                                                    options: [:])
+    
+    // Send the requests to the request handler.
+    DispatchQueue.global(qos: .userInitiated).async {
+      do {
+        try imageRequestHandler.perform(requests)
+      } catch let error as NSError {
+        print("Failed to perform image request: \(error)")
+        self.presentAlert("Image Request Failed", error: error)
+        return
+      }
+    }
+    
+    dismiss(animated: true, completion: nil)
   }
+  
 }
 
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
-  return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
-  return input.rawValue
-}
 
