@@ -26,7 +26,6 @@ class ViewController: UIViewController {
     do {
       //KD 190508 model von hier: https://github.com/patrykscheffler/sudoku-solver
       let model = numbers()
-//      let model = MNIST()
       let visionModel = try VNCoreMLModel(for: model.model)
       let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
         self?.processObservations(for: request, error: error)
