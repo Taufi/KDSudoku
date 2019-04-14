@@ -94,7 +94,7 @@ class ViewController: UIViewController {
     }
   }
   
-  func classify(image: UIImage) {
+  func classify(image: UIImage, completion ) {
     guard let ciImage = CIImage(image: image) else {
       print("Kann keine CIImage erzeugen")
       return
@@ -125,9 +125,9 @@ class ViewController: UIViewController {
           //          let result = results[0].identifier == "healthy" ? "gesund" : "ungesund"
           ////          self.resultsLabel.text = String(format: "%@ %.1f%%", result, results[0].confidence * 100)
           self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
-          for i in 0..<9 {
-            print(String(format: "Zu %.1f%% eine %@", results[i].confidence * 100, results[i].identifier))
-          }
+//          for i in 0..<9 {
+            print(String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier))
+//          }
           
 //           self.resultsLabel.text = String(format: "%@", results[0].identifier)
           //          self.resultsLabel.text = top3.joined(separator: "\n")
@@ -166,19 +166,28 @@ class ViewController: UIViewController {
     guard let cg = image.cgImage else { return }
     let factor = CGFloat(cg.width) / image.size.width
 //    let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
- let crop = CGRect(x: originX * factor , y: originY * factor, width: width / 8 * factor, height: height * factor / 8)
-    if let cropImage = cg.cropping(to: crop) {
-     
-      let uiImage = UIImage(cgImage: cropImage)
-      classify(image: uiImage)
-      // Since handlers are executing on a background thread, explicitly draw image on the main thread.
-      DispatchQueue.main.async {
-        self.imageView.image = nil
-        self.imageView.image = uiImage
-        self.saveImage(image: uiImage, imageName: "number.png")
-//        self.saveImage(cgImage: cropImage, imageName: "number.png")
+    
+    for i in 0..<9 {
+      let crop = CGRect(x: originX * factor  + ( CGFloat(i) * width / 9 ) * factor , y: originY * factor, width: width / 8 * factor, height: height * factor / 8)
+      if let cropImage = cg.cropping(to: crop) {
+        
+        let uiImage = UIImage(cgImage: cropImage)
+        
+        if i == 4 {
+          classify(image: uiImage)
+          // Since handlers are executing on a background thread, explicitly draw image on the main thread.
+          DispatchQueue.main.async {
+            //          self.imageView.image = nil
+            //          self.imageView.image = uiImage
+            self.saveImage(image: uiImage, imageName: "number\(i).png")
+            //        self.saveImage(cgImage: cropImage, imageName: "number.png")
+          }
+        }
+        
       }
     }
+    
+
   }
   
   /// - Tag: PreprocessImage
