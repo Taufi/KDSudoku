@@ -22,20 +22,22 @@ class ViewController: UIViewController {
   var sudokuImage: UIImage?
   var firstTime = true
   
-  lazy var classificationRequest: VNCoreMLRequest = {
-    do {
-      //KD 190508 model von hier: https://github.com/patrykscheffler/sudoku-solver
-      let model = numbers()
-      let visionModel = try VNCoreMLModel(for: model.model)
-      let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
-        self?.processObservations(for: request, error: error)
-      })
-      request.imageCropAndScaleOption = .centerCrop
-      return request
-    } catch {
-      fatalError("Fehler beim Erzeugen des VNCoreMLModel: \(error) ")
-    }
-  }()
+  var sudokuArray = Array(repeating: Array(repeating: 0, count: 9), count: 9)
+  
+//  lazy var classificationRequest: VNCoreMLRequest = {
+//    do {
+//      //KD 190508 model von hier: https://github.com/patrykscheffler/sudoku-solver
+//      let model = numbers()
+//      let visionModel = try VNCoreMLModel(for: model.model)
+//      let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
+//        self?.processObservations(for: request, error: error)
+//      })
+//      request.imageCropAndScaleOption = .centerCrop
+//      return request
+//    } catch {
+//      fatalError("Fehler beim Erzeugen des VNCoreMLModel: \(error) ")
+//    }
+//  }()
 
   
   override func viewDidLoad() {
@@ -43,6 +45,9 @@ class ViewController: UIViewController {
     cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
     resultsView.alpha = 0
     resultsLabel.text = "choose or take a sudoku photo"
+    
+    initArray()
+    
   }
   
   override func viewDidAppear(_ animated: Bool) {
@@ -52,6 +57,14 @@ class ViewController: UIViewController {
     if firstTime {
       showResultsView(delay: 0.5)
       firstTime = false
+    }
+  }
+  
+  func initArray() {
+    for i in 0..<9 {
+      for j in 0..<9 {
+        sudokuArray[i][j] = 0
+      }
     }
   }
   
@@ -94,7 +107,7 @@ class ViewController: UIViewController {
     }
   }
   
-  func classify(image: UIImage) {
+  func classify(image: UIImage, completion: @escaping ((Int) -> Void)) {
     guard let ciImage = CIImage(image: image) else {
       print("Kann keine CIImage erzeugen")
       return
@@ -103,34 +116,35 @@ class ViewController: UIViewController {
     DispatchQueue.global(qos: .userInitiated).async {
       let handler = VNImageRequestHandler(ciImage: ciImage, orientation: orientation)
       do {
-        try handler.perform([self.classificationRequest])
+        
+        let model = numbers()
+        let visionModel = try VNCoreMLModel(for: model.model)
+        let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
+          self?.processObservations(for: request, completion: completion, error: error)
+        })
+        request.imageCropAndScaleOption = .centerCrop
+        
+        try handler.perform([request])
       } catch {
         print("Fehler in der Klassifikation: \(error)")
       }
     }
   }
   
-  func processObservations(for request: VNRequest, error: Error?) {
+  func processObservations(for request: VNRequest, completion: @escaping ((Int) -> Void), error: Error?) {
     DispatchQueue.main.async {
       if let results = request.results as? [VNClassificationObservation] {
         if results.isEmpty {
           self.resultsLabel.text = "nichts gefunden"
-          //        } else if results[0].confidence < 0.8 {
-          //          print(results[0].confidence)
-          //          self.resultsLabel.text = "nicht sicher"
         } else {
-          //          let top3 = results.prefix(3).map { observation in
-          //            String(format: "%@ %.1f%%", observation.identifier, observation.confidence * 100)
-          //          }
-          //          let result = results[0].identifier == "healthy" ? "gesund" : "ungesund"
-          ////          self.resultsLabel.text = String(format: "%@ %.1f%%", result, results[0].confidence * 100)
           self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
-//          for i in 0..<9 {
-            print(String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier))
-//          }
           
-//           self.resultsLabel.text = String(format: "%@", results[0].identifier)
-          //          self.resultsLabel.text = top3.joined(separator: "\n")
+          if let resultValue = Int(results[0].identifier) {
+            let value = resultValue > 9 ? 0 : resultValue
+            completion(value)
+          }
+      
+          print(String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier))
         }
       } else if let error = error {
         self.resultsLabel.text = "Fehler: \(error.localizedDescription)"
@@ -172,9 +186,12 @@ class ViewController: UIViewController {
       if let cropImage = cg.cropping(to: crop) {
         
         let uiImage = UIImage(cgImage: cropImage)
+
         
-        if i == 4 {
-          classify(image: uiImage)
+        DispatchQueue.global(qos: .userInitiated).async {
+          self.classify(image: uiImage) { (value) in
+            self.sudokuArray[0][i] = value
+          }
           // Since handlers are executing on a background thread, explicitly draw image on the main thread.
           DispatchQueue.main.async {
             //          self.imageView.image = nil
@@ -183,10 +200,12 @@ class ViewController: UIViewController {
             //        self.saveImage(cgImage: cropImage, imageName: "number.png")
           }
         }
-        
       }
     }
     
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+      print(self.sudokuArray)
+    }
 
   }
   
@@ -308,6 +327,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     guard let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else { return }
     
+    initArray()
     sudokuImage = scaleAndOrient(image: originalImage)
     
     //KD 190406 In den folgenden zwei statements könnte ich auch sudokuImage verwenden, da Vison die Koordinaten des entdeckten Rechtecks in relativen Werten (zwischen 0.0 und 1.0) zurückgibt
