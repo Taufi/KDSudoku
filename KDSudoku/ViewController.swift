@@ -94,7 +94,7 @@ class ViewController: UIViewController {
     }
   }
   
-  func classify(image: UIImage, completion ) {
+  func classify(image: UIImage) {
     guard let ciImage = CIImage(image: image) else {
       print("Kann keine CIImage erzeugen")
       return
