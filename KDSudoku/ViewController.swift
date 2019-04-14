@@ -23,8 +23,8 @@ class ViewController: UIViewController {
   
   lazy var classificationRequest: VNCoreMLRequest = {
     do {
-//      let model = numbers()
-      let model = mnistCNN()
+      let model = numbers()
+//      let model = mnistCNN()
       let visionModel = try VNCoreMLModel(for: model.model)
       let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
         self?.processObservations(for: request, error: error)
