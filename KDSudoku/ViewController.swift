@@ -165,7 +165,8 @@ class ViewController: UIViewController {
     
     guard let cg = image.cgImage else { return }
     let factor = CGFloat(cg.width) / image.size.width
-    let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
+//    let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
+ let crop = CGRect(x: originX * factor , y: originY * factor, width: width / 8 * factor, height: height * factor / 8)
     if let cropImage = cg.cropping(to: crop) {
      
       let uiImage = UIImage(cgImage: cropImage)
