@@ -46,7 +46,7 @@ class ViewController: UIViewController {
     resultsView.alpha = 0
     resultsLabel.text = "choose or take a sudoku photo"
     
-    initArray()
+//    initArray()
     
   }
   
@@ -123,6 +123,7 @@ class ViewController: UIViewController {
           self?.processObservations(for: request, completion: completion, error: error)
         })
         request.imageCropAndScaleOption = .centerCrop
+//        request.imageCropAndScaleOption = .scaleFit
         
         try handler.perform([request])
       } catch {
@@ -137,7 +138,8 @@ class ViewController: UIViewController {
         if results.isEmpty {
           self.resultsLabel.text = "nichts gefunden"
         } else {
-          self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
+//          self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
+
           
           if let resultValue = Int(results[0].identifier) {
             let value = resultValue > 9 ? 0 : resultValue
@@ -166,6 +168,8 @@ class ViewController: UIViewController {
       let rect = results.first,
       let image = self.sudokuImage
       else {
+         self.resultsLabel.text = "Bääää"
+         self.showResultsView()
         print("Bäääääää")
         return }
     
@@ -182,29 +186,31 @@ class ViewController: UIViewController {
 //    let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
     
     for i in 0..<9 {
-      let crop = CGRect(x: originX * factor  + ( CGFloat(i) * width / 9 ) * factor , y: originY * factor, width: width / 8 * factor, height: height * factor / 8)
+//      let crop = CGRect(x: originX * factor  + ( CGFloat(i) * width / 9 ) * factor , y: originY * factor, width: width / 8 * factor, height: height * factor / 8)
+let crop = CGRect(x: originX * factor  + ( CGFloat(i) * width / 9.2 ) * factor , y: originY * factor - 10, width: width / 7 * factor, height: height * factor / 7)
       if let cropImage = cg.cropping(to: crop) {
         
         let uiImage = UIImage(cgImage: cropImage)
 
         
-        DispatchQueue.global(qos: .userInitiated).async {
-          self.classify(image: uiImage) { (value) in
-            self.sudokuArray[0][i] = value
-          }
-          // Since handlers are executing on a background thread, explicitly draw image on the main thread.
-          DispatchQueue.main.async {
-            //          self.imageView.image = nil
-            //          self.imageView.image = uiImage
-            self.saveImage(image: uiImage, imageName: "number\(i).png")
-            //        self.saveImage(cgImage: cropImage, imageName: "number.png")
-          }
+//        DispatchQueue.global(qos: . userInitiated).async {
+        self.classify(image: uiImage) { (value) in
+          self.sudokuArray[0][i] = value
         }
+        // Since handlers are executing on a background thread, explicitly draw image on the main thread.
+        DispatchQueue.main.async {
+          //          self.imageView.image = nil
+          //          self.imageView.image = uiImage
+          self.saveImage(image: uiImage, imageName: "number\(i).png")
+          //        self.saveImage(cgImage: cropImage, imageName: "number.png")
+        }
+//      }
       }
     }
     
-    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
       print(self.sudokuArray)
+      self.resultsLabel.text = "\(self.sudokuArray[0][0])\(self.sudokuArray[0][1])\(self.sudokuArray[0][2])\(self.sudokuArray[0][3])\(self.sudokuArray[0][4])\(self.sudokuArray[0][5])\(self.sudokuArray[0][6])\(self.sudokuArray[0][7])\(self.sudokuArray[0][8])"
     }
 
   }
