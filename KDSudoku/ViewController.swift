@@ -187,7 +187,7 @@ class ViewController: UIViewController {
     
     for i in 0..<9 {
       for j in 0..<9 {
-        let summand = i == 0 ? 0 : 1
+        let summand = i < 4 ? 0 : 1
 //        let summand = 1
         let crop = CGRect(x: originX * factor  + ( CGFloat(j) * width / 9.2 ) * factor + 5, y: originY * factor + ( CGFloat(i) * height / 9 ) * factor - CGFloat(summand) * 10  , width: width / 8 * factor, height: height * factor / 8)
         if let cropImage = cg.cropping(to: crop) {
