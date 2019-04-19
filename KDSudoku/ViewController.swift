@@ -186,31 +186,35 @@ class ViewController: UIViewController {
 //    let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
     
     for i in 0..<9 {
-//      let crop = CGRect(x: originX * factor  + ( CGFloat(i) * width / 9 ) * factor , y: originY * factor, width: width / 8 * factor, height: height * factor / 8)
-let crop = CGRect(x: originX * factor  + ( CGFloat(i) * width / 9.2 ) * factor , y: originY * factor - 10, width: width / 7 * factor, height: height * factor / 7)
-      if let cropImage = cg.cropping(to: crop) {
-        
-        let uiImage = UIImage(cgImage: cropImage)
+      for j in 0..<9 {
+        let summand = i == 0 ? 0 : 1
+//        let summand = 1
+        let crop = CGRect(x: originX * factor  + ( CGFloat(j) * width / 9.2 ) * factor , y: originY * factor + ( CGFloat(i) * height / 9 ) * factor - CGFloat(summand) * 10  , width: width / 8 * factor, height: height * factor / 8)
+        if let cropImage = cg.cropping(to: crop) {
+          
+          let uiImage = UIImage(cgImage: cropImage)
+          
+          
+          //        DispatchQueue.global(qos: . userInitiated).async {
+          self.classify(image: uiImage) { (value) in
+            self.sudokuArray[i][j] = value
+          }
+          // Since handlers are executing on a background thread, explicitly draw image on the main thread.
+          DispatchQueue.main.async {
+            //          self.imageView.image = nil
+            //          self.imageView.image = uiImage
+            self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
+          }
+          //      }
+        }
 
-        
-//        DispatchQueue.global(qos: . userInitiated).async {
-        self.classify(image: uiImage) { (value) in
-          self.sudokuArray[0][i] = value
-        }
-        // Since handlers are executing on a background thread, explicitly draw image on the main thread.
-        DispatchQueue.main.async {
-          //          self.imageView.image = nil
-          //          self.imageView.image = uiImage
-          self.saveImage(image: uiImage, imageName: "number\(i).png")
-          //        self.saveImage(cgImage: cropImage, imageName: "number.png")
-        }
-//      }
       }
     }
+  
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
       print(self.sudokuArray)
-      self.resultsLabel.text = "\(self.sudokuArray[0][0])\(self.sudokuArray[0][1])\(self.sudokuArray[0][2])\(self.sudokuArray[0][3])\(self.sudokuArray[0][4])\(self.sudokuArray[0][5])\(self.sudokuArray[0][6])\(self.sudokuArray[0][7])\(self.sudokuArray[0][8])"
+      self.resultsLabel.text = "\(self.sudokuArray[8][0])\(self.sudokuArray[8][1])\(self.sudokuArray[8][2])\(self.sudokuArray[8][3])\(self.sudokuArray[8][4])\(self.sudokuArray[8][5])\(self.sudokuArray[8][6])\(self.sudokuArray[8][7])\(self.sudokuArray[8][8])"
     }
 
   }
