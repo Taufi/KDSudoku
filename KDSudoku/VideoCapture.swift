@@ -26,12 +26,12 @@ public class VideoCapture: NSObject {
   
   var lastTimestamp = CMTime()
   
-  public func setUp(sessionPreset: AVCaptureSession.Preset = .medium, completion: @escaping (Bool)-> Void) {
-    queue.async {
-      let success = self.setUpCamera(sessionPreset: sessionPreset)
-      DispatchQueue.main.async {
-        completion(success)
-      }
-    }
-  }
+//  public func setUp(sessionPreset: AVCaptureSession.Preset = .medium, completion: @escaping (Bool)-> Void) {
+//    queue.async {
+//      let success = self.setUpCamera(sessionPreset: sessionPreset)
+//      DispatchQueue.main.async {
+//        completion(success)
+//      }
+//    }
+//  }
 }

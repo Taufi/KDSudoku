@@ -169,9 +169,11 @@ class ViewController: UIViewController {
       let rect = results.first,
       let image = self.sudokuImage
       else {
-         self.resultsLabel.text = "Bääää"
-         self.showResultsView()
-        print("Bäääääää")
+        DispatchQueue.main.async {
+          self.resultsLabel.text = "Bääää"
+          self.showResultsView()
+          print("Bäääääää")
+        }
         return }
     
     let imageWidth = image.size.width
@@ -204,7 +206,7 @@ class ViewController: UIViewController {
           DispatchQueue.main.async {
             //          self.imageView.image = nil
             //          self.imageView.image = uiImage
-//            self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
+            self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
           }
           //      }
         }
