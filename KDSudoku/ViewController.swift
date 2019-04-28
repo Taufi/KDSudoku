@@ -12,7 +12,8 @@ import Vision
 
 class ViewController: UIViewController {
 
-  @IBOutlet var imageView: UIImageView!
+  @IBOutlet weak var textView: UITextView!
+  //  @IBOutlet var imageView: UIImageView!
   @IBOutlet var cameraButton: UIButton!
   @IBOutlet var photoLibraryButton: UIButton!
   @IBOutlet var resultsView: UIView!
@@ -146,7 +147,7 @@ class ViewController: UIViewController {
             completion(value)
           }
       
-          print(String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier))
+//          print(String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier))
         }
       } else if let error = error {
         self.resultsLabel.text = "Fehler: \(error.localizedDescription)"
@@ -203,19 +204,27 @@ class ViewController: UIViewController {
           DispatchQueue.main.async {
             //          self.imageView.image = nil
             //          self.imageView.image = uiImage
-            self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
+//            self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
           }
           //      }
         }
-      }
-      DispatchQueue.main.async {
-        print("__________________________________")
       }
     }
   
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-      print(self.sudokuArray)
+//      print(self.sudokuArray)
+      
+      var sudokuPrint = ""
+      for i in 0..<9 {
+        for j in 0..<9 {
+          let printChar = self.sudokuArray[i][j] == 0 ? " _ " : " \(self.sudokuArray[i][j]) "
+          sudokuPrint.append("\(printChar)")
+        }
+        sudokuPrint.append("\n\n")
+      }
+      
+      self.textView.text = sudokuPrint
       self.resultsLabel.text = "\(self.sudokuArray[8][0])\(self.sudokuArray[8][1])\(self.sudokuArray[8][2])\(self.sudokuArray[8][3])\(self.sudokuArray[8][4])\(self.sudokuArray[8][5])\(self.sudokuArray[8][6])\(self.sudokuArray[8][7])\(self.sudokuArray[8][8])"
     }
 
