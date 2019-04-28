@@ -14,6 +14,7 @@
 		613491A822401E0900D4BF57 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 613491A622401E0900D4BF57 /* LaunchScreen.storyboard */; };
 		613491B022401FC700D4BF57 /* CGImagePropertyOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613491AF22401FC700D4BF57 /* CGImagePropertyOrientation.swift */; };
 		613491B2224021D800D4BF57 /* numbers.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 613491B1224021D800D4BF57 /* numbers.mlmodel */; };
+		619530B82275E9BE00C34CCD /* VideoCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619530B72275E9BE00C34CCD /* VideoCapture.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		613491A922401E0900D4BF57 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		613491AF22401FC700D4BF57 /* CGImagePropertyOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImagePropertyOrientation.swift; sourceTree = "<group>"; };
 		613491B1224021D800D4BF57 /* numbers.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = numbers.mlmodel; sourceTree = "<group>"; };
+		619530B72275E9BE00C34CCD /* VideoCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCapture.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 				613491B1224021D800D4BF57 /* numbers.mlmodel */,
 				6134919D22401E0500D4BF57 /* AppDelegate.swift */,
 				6134919F22401E0500D4BF57 /* ViewController.swift */,
+				619530B72275E9BE00C34CCD /* VideoCapture.swift */,
 				613491A122401E0500D4BF57 /* Main.storyboard */,
 				613491A422401E0900D4BF57 /* Assets.xcassets */,
 				613491A622401E0900D4BF57 /* LaunchScreen.storyboard */,
@@ -143,6 +146,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				613491A022401E0500D4BF57 /* ViewController.swift in Sources */,
+				619530B82275E9BE00C34CCD /* VideoCapture.swift in Sources */,
 				613491B022401FC700D4BF57 /* CGImagePropertyOrientation.swift in Sources */,
 				6134919E22401E0500D4BF57 /* AppDelegate.swift in Sources */,
 				613491B2224021D800D4BF57 /* numbers.mlmodel in Sources */,
