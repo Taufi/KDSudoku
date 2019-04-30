@@ -25,30 +25,11 @@ class ViewController: UIViewController {
   
   var sudokuArray = Array(repeating: Array(repeating: 0, count: 9), count: 9)
   
-//  lazy var classificationRequest: VNCoreMLRequest = {
-//    do {
-//      //KD 190508 model von hier: https://github.com/patrykscheffler/sudoku-solver
-//      let model = numbers()
-//      let visionModel = try VNCoreMLModel(for: model.model)
-//      let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
-//        self?.processObservations(for: request, error: error)
-//      })
-//      request.imageCropAndScaleOption = .centerCrop
-//      return request
-//    } catch {
-//      fatalError("Fehler beim Erzeugen des VNCoreMLModel: \(error) ")
-//    }
-//  }()
-
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
     resultsView.alpha = 0
     resultsLabel.text = "choose or take a sudoku photo"
-    
-//    initArray()
-    
   }
   
   override func viewDidAppear(_ animated: Bool) {
@@ -124,8 +105,7 @@ class ViewController: UIViewController {
           self?.processObservations(for: request, completion: completion, error: error)
         })
         request.imageCropAndScaleOption = .centerCrop
-//        request.imageCropAndScaleOption = .scaleFit
-        
+      
         try handler.perform([request])
       } catch {
         print("Fehler in der Klassifikation: \(error)")
@@ -141,13 +121,11 @@ class ViewController: UIViewController {
         } else {
 //          self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
 
-          
           if let resultValue = Int(results[0].identifier) {
             let value = resultValue > 9 ? 0 : resultValue
             completion(value)
           }
-      
-//          print(String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier))
+
         }
       } else if let error = error {
         self.resultsLabel.text = "Fehler: \(error.localizedDescription)"
@@ -186,37 +164,30 @@ class ViewController: UIViewController {
     
     guard let cg = image.cgImage else { return }
     let factor = CGFloat(cg.width) / image.size.width
-//    let crop = CGRect(x: originX * factor + 20.0, y: originY * factor + 20, width: width / 12 * factor, height: height * factor / 12)
     
     for i in 0..<9 {
       for j in 0..<9 {
         let summand = i < 4 ? 0 : 1
-//        let summand = 1
         let crop = CGRect(x: originX * factor  + ( CGFloat(j) * width / 9.2 ) * factor + 5, y: originY * factor + ( CGFloat(i) * height / 9 ) * factor - CGFloat(summand) * 10  , width: width / 8 * factor, height: height * factor / 8)
         if let cropImage = cg.cropping(to: crop) {
           
           let uiImage = UIImage(cgImage: cropImage)
           
-          
-          //        DispatchQueue.global(qos: . userInitiated).async {
+          //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
+          // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
           self.classify(image: uiImage) { (value) in
             self.sudokuArray[i][j] = value
           }
-          // Since handlers are executing on a background thread, explicitly draw image on the main thread.
-          DispatchQueue.main.async {
-            //          self.imageView.image = nil
-            //          self.imageView.image = uiImage
-            self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
-          }
-          //      }
+    
+          //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
+          // wenn ich sie auf dem Device laufen ließ. Simulator und Photo Library ging.
+           self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
         }
       }
     }
   
     
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-//      print(self.sudokuArray)
-      
       var sudokuPrint = ""
       for i in 0..<9 {
         for j in 0..<9 {
