@@ -25,6 +25,10 @@ class ViewController: UIViewController {
   
   var sudokuArray = Array(repeating: Array(repeating: 0, count: 9), count: 9)
   
+  //KD 190502: siehe Erläuterung in AppDelegate
+  let queue = DispatchQueue(label: "de.klausdresbach.digit-recognition-queue")
+  let group = DispatchGroup()
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
@@ -95,7 +99,7 @@ class ViewController: UIViewController {
       return
     }
     let orientation = CGImagePropertyOrientation(image.imageOrientation)
-    DispatchQueue.global(qos: .userInitiated).async {
+    queue.async(group: group) { //KD 190502: siehe Erläuterung in AppDelegate
       let handler = VNImageRequestHandler(ciImage: ciImage, orientation: orientation)
       do {
         
@@ -173,6 +177,10 @@ class ViewController: UIViewController {
           
           let uiImage = UIImage(cgImage: cropImage)
           
+          if i == 7 && j == 6 {
+            print("TW")
+          }
+          
           //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
           // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
           self.classify(image: uiImage) { (value) in
@@ -181,26 +189,26 @@ class ViewController: UIViewController {
     
           //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
           // wenn ich sie auf dem Device laufen ließ. Simulator und Photo Library ging.
-           self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
+          // self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
         }
       }
     }
-  
     
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-      var sudokuPrint = ""
-      for i in 0..<9 {
-        for j in 0..<9 {
-          let printChar = self.sudokuArray[i][j] == 0 ? " _ " : " \(self.sudokuArray[i][j]) "
-          sudokuPrint.append("\(printChar)")
+    group.notify(queue: queue) { //KD 190502: siehe Erläuterung in AppDelegate
+      DispatchQueue.main.async {
+        var sudokuPrint = ""
+        for i in 0..<9 {
+          for j in 0..<9 {
+            let printChar = self.sudokuArray[i][j] == 0 ? " _ " : " \(self.sudokuArray[i][j]) "
+            sudokuPrint.append("\(printChar)")
+          }
+          sudokuPrint.append("\n\n")
         }
-        sudokuPrint.append("\n\n")
+        
+        self.textView.text = sudokuPrint
+        self.resultsLabel.text = "\(self.sudokuArray[8][0])\(self.sudokuArray[8][1])\(self.sudokuArray[8][2])\(self.sudokuArray[8][3])\(self.sudokuArray[8][4])\(self.sudokuArray[8][5])\(self.sudokuArray[8][6])\(self.sudokuArray[8][7])\(self.sudokuArray[8][8])"
       }
-      
-      self.textView.text = sudokuPrint
-      self.resultsLabel.text = "\(self.sudokuArray[8][0])\(self.sudokuArray[8][1])\(self.sudokuArray[8][2])\(self.sudokuArray[8][3])\(self.sudokuArray[8][4])\(self.sudokuArray[8][5])\(self.sudokuArray[8][6])\(self.sudokuArray[8][7])\(self.sudokuArray[8][8])"
     }
-
   }
   
   /// - Tag: PreprocessImage
