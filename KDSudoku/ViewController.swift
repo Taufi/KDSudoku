@@ -9,11 +9,13 @@
 import UIKit
 import CoreML
 import Vision
+import AVFoundation
+//import CoreVideo
 
 class ViewController: UIViewController {
 
-  @IBOutlet weak var textView: UITextView!
   //  @IBOutlet var imageView: UIImageView!
+  @IBOutlet var videoPreview: UIView!
   @IBOutlet var cameraButton: UIButton!
   @IBOutlet var photoLibraryButton: UIButton!
   @IBOutlet var resultsView: UIView!
@@ -22,6 +24,7 @@ class ViewController: UIViewController {
   
   var sudokuImage: UIImage?
   var firstTime = true
+  var videoCapture: VideoCapture!
   
   var sudokuArray = Array(repeating: Array(repeating: 0, count: 9), count: 9)
   
@@ -34,6 +37,9 @@ class ViewController: UIViewController {
     cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
     resultsView.alpha = 0
     resultsLabel.text = "choose or take a sudoku photo"
+    
+    resultsLabel.text = ""
+    setUpCamera()
   }
   
   override func viewDidAppear(_ animated: Bool) {
@@ -44,6 +50,37 @@ class ViewController: UIViewController {
       showResultsView(delay: 0.5)
       firstTime = false
     }
+  }
+  
+  func setUpCamera() {
+    videoCapture = VideoCapture()
+    videoCapture.delegate = self
+    
+    // Change this line to limit how often the video capture delegate gets
+    // called. 1 means it is called 30 times per second, which gives realtime
+    // results but also uses more battery power.
+    videoCapture.frameInterval = 30
+    
+    videoCapture.setUp(sessionPreset: .high) { success in
+      if success {
+        // Add the video preview into the UI.
+        if let previewLayer = self.videoCapture.previewLayer {
+          self.videoPreview.layer.addSublayer(previewLayer)
+          self.resizePreviewLayer()
+        }
+        self.videoCapture.start()
+      }
+    }
+  }
+  
+  //KD 190503 brauche ich das???
+  override func viewWillLayoutSubviews() {
+    super.viewWillLayoutSubviews()
+    resizePreviewLayer()
+  }
+  
+  func resizePreviewLayer() {
+    videoCapture.previewLayer?.frame = videoPreview.bounds
   }
   
   func initArray() {
@@ -205,7 +242,7 @@ class ViewController: UIViewController {
           sudokuPrint.append("\n\n")
         }
         
-        self.textView.text = sudokuPrint
+     //   self.textView.text = sudokuPrint
         self.resultsLabel.text = "\(self.sudokuArray[8][0])\(self.sudokuArray[8][1])\(self.sudokuArray[8][2])\(self.sudokuArray[8][3])\(self.sudokuArray[8][4])\(self.sudokuArray[8][5])\(self.sudokuArray[8][6])\(self.sudokuArray[8][7])\(self.sudokuArray[8][8])"
       }
     }
@@ -367,6 +404,12 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
     dismiss(animated: true, completion: nil)
   }
   
+}
+
+extension ViewController: VideoCaptureDelegate {
+  func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame sampleBuffer: CMSampleBuffer) {
+//    classify(sampleBuffer: sampleBuffer)
+  }
 }
 
 

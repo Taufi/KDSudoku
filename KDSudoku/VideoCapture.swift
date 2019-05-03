@@ -8,6 +8,7 @@
 
 import AVFoundation
 import UIKit
+//import CoreVideo
 
 public protocol VideoCaptureDelegate: class {
   func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame: CMSampleBuffer)

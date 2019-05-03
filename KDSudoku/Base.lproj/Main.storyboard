@@ -45,9 +45,9 @@
                                 </connections>
                             </button>
                             <visualEffectView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FkF-wO-Ao3">
-                                <rect key="frame" x="102" y="30" width="171" height="36.5"/>
+                                <rect key="frame" x="102" y="30" width="171" height="37"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="UgK-Bp-9sd">
-                                    <rect key="frame" x="0.0" y="0.0" width="171" height="36.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="171" height="37"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="(Results go here)" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ksW-JO-KH4">
@@ -71,13 +71,11 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </visualEffectView>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="gjq-4c-4JO">
-                                <rect key="frame" x="37" y="126" width="300" height="300"/>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9oc-RU-HP1">
+                                <rect key="frame" x="33" y="100" width="308" height="479"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <fontDescription key="fontDescription" name="Courier" family="Courier" pointSize="16"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                            </textView>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -96,7 +94,7 @@
                         <outlet property="resultsConstraint" destination="JRs-Hl-ms6" id="cjz-eH-cNM"/>
                         <outlet property="resultsLabel" destination="ksW-JO-KH4" id="BdZ-XV-h7Z"/>
                         <outlet property="resultsView" destination="FkF-wO-Ao3" id="mI2-Hc-MDo"/>
-                        <outlet property="textView" destination="gjq-4c-4JO" id="VMX-2o-WPu"/>
+                        <outlet property="videoPreview" destination="9oc-RU-HP1" id="z4R-I9-dte"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
