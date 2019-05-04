@@ -16,8 +16,6 @@ class ViewController: UIViewController {
 
   //  @IBOutlet var imageView: UIImageView!
   @IBOutlet var videoPreview: UIView!
-  @IBOutlet var cameraButton: UIButton!
-  @IBOutlet var photoLibraryButton: UIButton!
   @IBOutlet var resultsView: UIView!
   @IBOutlet var resultsLabel: UILabel!
   @IBOutlet var resultsConstraint: NSLayoutConstraint!
@@ -34,7 +32,7 @@ class ViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
+  
     resultsView.alpha = 0
     resultsLabel.text = "choose or take a sudoku photo"
     
@@ -90,22 +88,7 @@ class ViewController: UIViewController {
       }
     }
   }
-  
-  @IBAction func takePicture() {
-    presentPhotoPicker(sourceType: .camera)
-  }
-  
-  @IBAction func choosePhoto() {
-    presentPhotoPicker(sourceType: .photoLibrary)
-  }
-  
-  func presentPhotoPicker(sourceType: UIImagePickerController.SourceType) {
-    let picker = UIImagePickerController()
-    picker.delegate = self
-    picker.sourceType = sourceType
-    present(picker, animated: true)
-    hideResultsView()
-  }
+
   
   func showResultsView(delay: TimeInterval = 0.1) {
     resultsConstraint.constant = 100
@@ -345,6 +328,10 @@ class ViewController: UIViewController {
     }
   }
   
+  func detectRectangles(ciImage: CIImage) {
+    
+  }
+  
   func saveImage(image: UIImage, imageName: String){
     
     //create an instance of the FileManager
@@ -363,6 +350,7 @@ class ViewController: UIViewController {
 
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   
+  //KD 190503 kann später weg, wenn ich den Code in der VideoCaptureDelegate-Methode verwendet habe
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     guard let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else { return }
     
@@ -408,6 +396,13 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
 
 extension ViewController: VideoCaptureDelegate {
   func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame sampleBuffer: CMSampleBuffer) {
+    if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+      //KD 190503: frei nach https://gist.github.com/johnnyclem/11015360
+      let ciImage = CIImage.init(cvImageBuffer: imageBuffer)
+      
+      print("\(ciImage.debugDescription)")
+      print(Date())
+    }
 //    classify(sampleBuffer: sampleBuffer)
   }
 }
