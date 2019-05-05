@@ -57,7 +57,7 @@ class ViewController: UIViewController {
     // Change this line to limit how often the video capture delegate gets
     // called. 1 means it is called 30 times per second, which gives realtime
     // results but also uses more battery power.
-    videoCapture.frameInterval = 30
+    videoCapture.frameInterval = 150
     
     videoCapture.setUp(sessionPreset: .high) { success in
       if success {
@@ -187,7 +187,13 @@ class ViewController: UIViewController {
     
     
     guard let cg = image.cgImage else { return }
-    let factor = CGFloat(cg.width) / image.size.width
+    
+     let factor = CGFloat(cg.width) / image.size.width
+    
+    let rectCrop = CGRect(x: originX * factor, y: originY * factor, width: width * factor * factor, height: height * factor)
+    if let suIm = cg.cropping(to: rectCrop) {
+      print("\(suIm.height)")
+    }
     
     for i in 0..<9 {
       for j in 0..<9 {
@@ -196,10 +202,7 @@ class ViewController: UIViewController {
         if let cropImage = cg.cropping(to: crop) {
           
           let uiImage = UIImage(cgImage: cropImage)
-          
-          if i == 7 && j == 6 {
-            print("TW")
-          }
+        
           
           //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
           // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
@@ -328,8 +331,41 @@ class ViewController: UIViewController {
     }
   }
   
-  func detectRectangles(ciImage: CIImage) {
+  func detectRectangles(uiImage: UIImage) {
+    initArray()
+    sudokuImage = scaleAndOrient(image: uiImage)
     
+    //KD 190406 In den folgenden zwei statements könnte ich auch sudokuImage verwenden, da Vison die Koordinaten des entdeckten Rechtecks in relativen Werten (zwischen 0.0 und 1.0) zurückgibt
+    let cgOrientation = CGImagePropertyOrientation(uiImage.imageOrientation)
+    
+    // Fire off request based on URL of chosen photo.
+    guard let cgImage = uiImage.cgImage else {
+      return
+    }
+    
+    let rectDetectRequest = VNDetectRectanglesRequest(completionHandler: self.handleDetectedRectangles)
+    
+    // Customize & configure the request to detect only certain rectangles.
+    rectDetectRequest.maximumObservations = 8 // Vision currently supports up to 16.
+    rectDetectRequest.minimumConfidence = 0.6 // Be confident.
+    rectDetectRequest.minimumAspectRatio = 0.3 // height / width
+    
+    let requests = [rectDetectRequest]
+    
+    let imageRequestHandler = VNImageRequestHandler(cgImage: cgImage,
+                                                    orientation: cgOrientation,
+                                                    options: [:])
+    
+    // Send the requests to the request handler.
+    DispatchQueue.global(qos: .userInitiated).async {
+      do {
+        try imageRequestHandler.perform(requests)
+      } catch let error as NSError {
+        print("Failed to perform image request: \(error)")
+        self.presentAlert("Image Request Failed", error: error)
+        return
+      }
+    }
   }
   
   func saveImage(image: UIImage, imageName: String){
@@ -396,10 +432,20 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
 
 extension ViewController: VideoCaptureDelegate {
   func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame sampleBuffer: CMSampleBuffer) {
+    
+    func convert(cmage:CIImage) -> UIImage
+    {
+      let context:CIContext = CIContext.init(options: nil)
+      let cgImage:CGImage = context.createCGImage(cmage, from: cmage.extent)!
+      let image:UIImage = UIImage.init(cgImage: cgImage)
+      return image
+    }
+    
     if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
       //KD 190503: frei nach https://gist.github.com/johnnyclem/11015360
       let ciImage = CIImage.init(cvImageBuffer: imageBuffer)
-      
+      let uiImage : UIImage = convert(cmage: ciImage)
+      detectRectangles(uiImage: uiImage)
       print("\(ciImage.debugDescription)")
       print(Date())
     }
