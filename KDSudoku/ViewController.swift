@@ -238,11 +238,22 @@ class ViewController: UIViewController {
   }
   
   /// - Tag: PreprocessImage
+  //KD 190511 Ich muss das mit der Kamera aufgenommene Bild bearbietne, damit ich es nutzen kann. Das geschieht in drei Schritten
+  // 1. Ich bringe es auf eine Standardgröße, in der die längste Seite 640pt hat.
+  // 2. Da das Bild immer in Landscape-Orientation aufgenommen wird (siehe hier: https://developer.apple.com/documentation/uikit/uiimage/orientation), muss ich es entsprechend drehen
+  // 3. Das Bild kommt seitenverkehrt von der Kamera, also muss ich es noch spiegeln
+  //
+  // Ich nutze daher eine Kurzform der Methode scaleAndOrient aus der App VisionBasics. Diese wiederum ist die BeispielApp von hier:
+  // https://developer.apple.com/documentation/vision/detecting_objects_in_still_images
+  //
+  // Ich habe die Originalmethode scaleAndOrient hier stark gekürzt, da ich in der Sudoku-App nur den Portrait-Modus gestatte
+  // und das Bild daher immer mit der orientation .right kommt. Alle anderen Fälle habe ich in der Methode eliminiert. (Komplette Methode siehe VisionBasics)
+  //
   func scaleAndOrient(image: UIImage) -> UIImage {
     
     // Set a default value for limiting image size.
+    //KD 190509 1. hier wird die Größe des Bildes angepasst. Sonst dauert es lange und der Speicher wird knapp
     let maxResolution: CGFloat = 640
-//        let maxResolution: CGFloat = 1280
     
     guard let cgImage = image.cgImage else {
       print("UIImage has no CGImage backing it!")
@@ -268,57 +279,24 @@ class ViewController: UIViewController {
       }
     }
     
-    let scaleRatio = bounds.size.width / width
-    let orientation = image.imageOrientation
-    switch orientation {
-    case .up:
-      transform = .identity
-    case .down:
-      transform = CGAffineTransform(translationX: width, y: height).rotated(by: .pi)
-    case .left:
-      let boundsHeight = bounds.size.height
-      bounds.size.height = bounds.size.width
-      bounds.size.width = boundsHeight
-      transform = CGAffineTransform(translationX: 0, y: width).rotated(by: 3.0 * .pi / 2.0)
-    case .right:
-      //          transform = .identity
-      let boundsHeight = bounds.size.height
-      bounds.size.height = bounds.size.width
-      bounds.size.width = boundsHeight
-      transform = CGAffineTransform(translationX: height, y: 0).rotated(by: .pi / 2.0)
-    case .upMirrored:
-      transform = CGAffineTransform(translationX: width, y: 0).scaledBy(x: -1, y: 1)
-    case .downMirrored:
-      transform = CGAffineTransform(translationX: 0, y: height).scaledBy(x: 1, y: -1)
-    case .leftMirrored:
-      let boundsHeight = bounds.size.height
-      bounds.size.height = bounds.size.width
-      bounds.size.width = boundsHeight
-      transform = CGAffineTransform(translationX: height, y: width).scaledBy(x: -1, y: 1).rotated(by: 3.0 * .pi / 2.0)
-    case .rightMirrored:
-      let boundsHeight = bounds.size.height
-      bounds.size.height = bounds.size.width
-      bounds.size.width = boundsHeight
-      transform = CGAffineTransform(scaleX: -1, y: 1).rotated(by: .pi / 2.0)
-    @unknown default:
-      fatalError("Unknown Value in Image Orientation")
-    }
+    //KD 190509 2. hier drehe ich das Bild, da es in orientation .right ankommt. ACHTUNG: im Simulator ist dies anders. Zum Drehen vonBildern siehe auch die App Project27
+    let boundsHeight = bounds.size.height
+    bounds.size.height = bounds.size.width
+    bounds.size.width = boundsHeight
+    transform = CGAffineTransform(translationX: height, y: 0).rotated(by: .pi / 2.0)
     
     return UIGraphicsImageRenderer(size: bounds.size).image { rendererContext in
       let context = rendererContext.cgContext
       
-      if orientation == .right || orientation == .left {
-        context.scaleBy(x: -scaleRatio, y: scaleRatio)
-        context.translateBy(x: -height, y: 0)
-      } else {
-        context.scaleBy(x: scaleRatio, y: -scaleRatio)
-        context.translateBy(x: 0, y: -height)
-      }
+    //KD 190509 3. hier spiegle ich das Bild. Wenn ich etwas mit der Kamera aufnehme, ist das interne
+     //          Bild gespiegelt gegenüber dem, was ich auf dem Screen sehe.
+      context.scaleBy(x: -scaleRatio, y: scaleRatio)
+      context.translateBy(x: -height, y: 0)
+      
       context.concatenate(transform)
       context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
     }
   }
-  
   fileprivate func boundingBox(forRegionOfInterest: CGRect, withinImageBounds bounds: CGRect) -> CGRect {
     
     let imageWidth = bounds.width
