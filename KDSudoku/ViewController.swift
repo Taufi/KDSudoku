@@ -222,6 +222,7 @@ class ViewController: UIViewController {
     
     group.notify(queue: queue) { //KD 190502: siehe Erläuterung in AppDelegate
       DispatchQueue.main.async {
+               print(self.sudokuArray)
         var sudokuPrint = ""
         for i in 0..<9 {
           for j in 0..<9 {
@@ -279,11 +280,12 @@ class ViewController: UIViewController {
       }
     }
     
-    //KD 190509 2. hier drehe ich das Bild, da es in orientation .right ankommt. ACHTUNG: im Simulator ist dies anders. Zum Drehen vonBildern siehe auch die App Project27
-    let boundsHeight = bounds.size.height
-    bounds.size.height = bounds.size.width
-    bounds.size.width = boundsHeight
-    transform = CGAffineTransform(translationX: height, y: 0).rotated(by: .pi / 2.0)
+//    //KD 190509 2. hier drehe ich das Bild, da es in orientation .right ankommt. ACHTUNG: im Simulator ist dies anders. Zum Drehen von Bildern siehe auch die App Project27
+    let scaleRatio = bounds.size.width / width
+//    let boundsHeight = bounds.size.height
+//    bounds.size.height = bounds.size.width
+//    bounds.size.width = boundsHeight
+//    transform = CGAffineTransform(translationX: height, y: 0).rotated(by: .pi / 2.0)
     
     return UIGraphicsImageRenderer(size: bounds.size).image { rendererContext in
       let context = rendererContext.cgContext
@@ -297,6 +299,7 @@ class ViewController: UIViewController {
       context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
     }
   }
+  
   fileprivate func boundingBox(forRegionOfInterest: CGRect, withinImageBounds bounds: CGRect) -> CGRect {
     
     let imageWidth = bounds.width
@@ -370,7 +373,9 @@ class ViewController: UIViewController {
   
   func detectRectangles(uiImage: UIImage) {
     initArray()
-    sudokuImage = scaleAndOrient(image: uiImage)
+    sudokuImage = uiImage
+//    sudokuImage = scaleAndOrient(image: uiImage)
+//    let scImg = sudokuImage
     
     //KD 190406 In den folgenden zwei statements könnte ich auch sudokuImage verwenden, da Vison die Koordinaten des entdeckten Rechtecks in relativen Werten (zwischen 0.0 und 1.0) zurückgibt
     let cgOrientation = CGImagePropertyOrientation(uiImage.imageOrientation)
