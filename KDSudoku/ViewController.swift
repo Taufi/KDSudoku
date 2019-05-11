@@ -237,68 +237,7 @@ class ViewController: UIViewController {
       }
     }
   }
-  
-  /// - Tag: PreprocessImage
-  //KD 190511 Ich muss das mit der Kamera aufgenommene Bild bearbietne, damit ich es nutzen kann. Das geschieht in drei Schritten
-  // 1. Ich bringe es auf eine Standardgröße, in der die längste Seite 640pt hat.
-  // 2. Da das Bild immer in Landscape-Orientation aufgenommen wird (siehe hier: https://developer.apple.com/documentation/uikit/uiimage/orientation), muss ich es entsprechend drehen
-  // 3. Das Bild kommt seitenverkehrt von der Kamera, also muss ich es noch spiegeln
-  //
-  // Ich nutze daher eine Kurzform der Methode scaleAndOrient aus der App VisionBasics. Diese wiederum ist die BeispielApp von hier:
-  // https://developer.apple.com/documentation/vision/detecting_objects_in_still_images
-  //
-  // Ich habe die Originalmethode scaleAndOrient hier stark gekürzt, da ich in der Sudoku-App nur den Portrait-Modus gestatte
-  // und das Bild daher immer mit der orientation .right kommt. Alle anderen Fälle habe ich in der Methode eliminiert. (Komplette Methode siehe VisionBasics)
-  //
-  func scaleAndOrient(image: UIImage) -> UIImage {
-    
-    // Set a default value for limiting image size.
-    //KD 190509 1. hier wird die Größe des Bildes angepasst. Sonst dauert es lange und der Speicher wird knapp
-    let maxResolution: CGFloat = 640
-    
-    guard let cgImage = image.cgImage else {
-      print("UIImage has no CGImage backing it!")
-      return image
-    }
-    
-    // Compute parameters for transform.
-    let width = CGFloat(cgImage.width)
-    let height = CGFloat(cgImage.height)
-    var transform = CGAffineTransform.identity
-    
-    var bounds = CGRect(x: 0, y: 0, width: width, height: height)
-    
-    if width > maxResolution ||
-      height > maxResolution {
-      let ratio = width / height
-      if width > height {
-        bounds.size.width = maxResolution
-        bounds.size.height = round(maxResolution / ratio)
-      } else {
-        bounds.size.width = round(maxResolution * ratio)
-        bounds.size.height = maxResolution
-      }
-    }
-    
-//    //KD 190509 2. hier drehe ich das Bild, da es in orientation .right ankommt. ACHTUNG: im Simulator ist dies anders. Zum Drehen von Bildern siehe auch die App Project27
-    let scaleRatio = bounds.size.width / width
-//    let boundsHeight = bounds.size.height
-//    bounds.size.height = bounds.size.width
-//    bounds.size.width = boundsHeight
-//    transform = CGAffineTransform(translationX: height, y: 0).rotated(by: .pi / 2.0)
-    
-    return UIGraphicsImageRenderer(size: bounds.size).image { rendererContext in
-      let context = rendererContext.cgContext
-      
-    //KD 190509 3. hier spiegle ich das Bild. Wenn ich etwas mit der Kamera aufnehme, ist das interne
-     //          Bild gespiegelt gegenüber dem, was ich auf dem Screen sehe.
-      context.scaleBy(x: -scaleRatio, y: scaleRatio)
-      context.translateBy(x: -height, y: 0)
-      
-      context.concatenate(transform)
-      context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
-    }
-  }
+
   
   fileprivate func boundingBox(forRegionOfInterest: CGRect, withinImageBounds bounds: CGRect) -> CGRect {
     
@@ -373,10 +312,11 @@ class ViewController: UIViewController {
   
   func detectRectangles(uiImage: UIImage) {
     initArray()
-    sudokuImage = uiImage
-//    sudokuImage = scaleAndOrient(image: uiImage)
-//    let scImg = sudokuImage
     
+    //KD 190511 hier muss ich keine scaleAndOrient-Methode aufrufen (vgl. App "KDSudoku - stehendes Bild").
+    //          Liegt wohl daran, dass ich AVFoundation verwende?
+    sudokuImage = uiImage
+
     //KD 190406 In den folgenden zwei statements könnte ich auch sudokuImage verwenden, da Vison die Koordinaten des entdeckten Rechtecks in relativen Werten (zwischen 0.0 und 1.0) zurückgibt
     let cgOrientation = CGImagePropertyOrientation(uiImage.imageOrientation)
     
@@ -422,52 +362,6 @@ class ViewController: UIViewController {
     let data = image.pngData()
     //store it in the document directory
     fileManager.createFile(atPath: imagePath as String, contents: data, attributes: nil)
-  }
-  
-}
-
-extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-  
-  //KD 190503 kann später weg, wenn ich den Code in der VideoCaptureDelegate-Methode verwendet habe
-  func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-    guard let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else { return }
-    
-    initArray()
-    sudokuImage = scaleAndOrient(image: originalImage)
-    
-    //KD 190406 In den folgenden zwei statements könnte ich auch sudokuImage verwenden, da Vison die Koordinaten des entdeckten Rechtecks in relativen Werten (zwischen 0.0 und 1.0) zurückgibt
-    let cgOrientation = CGImagePropertyOrientation(originalImage.imageOrientation)
-    
-    // Fire off request based on URL of chosen photo.
-    guard let cgImage = originalImage.cgImage else {
-      return
-    }
-    
-    let rectDetectRequest = VNDetectRectanglesRequest(completionHandler: self.handleDetectedRectangles)
-    
-    // Customize & configure the request to detect only certain rectangles.
-    rectDetectRequest.maximumObservations = 8 // Vision currently supports up to 16.
-    rectDetectRequest.minimumConfidence = 0.6 // Be confident.
-    rectDetectRequest.minimumAspectRatio = 0.3 // height / width
-    
-    let requests = [rectDetectRequest]
-    
-    let imageRequestHandler = VNImageRequestHandler(cgImage: cgImage,
-                                                    orientation: cgOrientation,
-                                                    options: [:])
-    
-    // Send the requests to the request handler.
-    DispatchQueue.global(qos: .userInitiated).async {
-      do {
-        try imageRequestHandler.perform(requests)
-      } catch let error as NSError {
-        print("Failed to perform image request: \(error)")
-        self.presentAlert("Image Request Failed", error: error)
-        return
-      }
-    }
-    
-    dismiss(animated: true, completion: nil)
   }
   
 }
