@@ -33,6 +33,10 @@ class ViewController: UIViewController {
   //KD 190505 zur Visionalisierung des Sudoku-Rechtecks
   var pathLayer: CALayer?
   
+  // Image parameters for reuse throughout app
+  var imageWidth: CGFloat = 0
+  var imageHeight: CGFloat = 0
+  
   override func viewDidLoad() {
     super.viewDidLoad()
   
@@ -181,6 +185,14 @@ class ViewController: UIViewController {
         }
         return }
     
+    DispatchQueue.main.async {
+      guard let drawLayer = self.pathLayer else {
+          return
+      }
+      self.draw(rectangles: results, onImageWithBounds: drawLayer.bounds)
+      drawLayer.setNeedsDisplay()
+    }
+    
     let imageWidth = image.size.width
     let imageHeight = image.size.height
     let originX = rect.topLeft.x * imageWidth
@@ -313,8 +325,9 @@ class ViewController: UIViewController {
   func detectRectangles(uiImage: UIImage) {
     initArray()
     
-    //KD 190511 hier muss ich keine scaleAndOrient-Methode aufrufen (vgl. App "KDSudoku - stehendes Bild").
-    //          Liegt wohl daran, dass ich AVFoundation verwende?
+    //KD 190511 hier muss ich keine scaleAndOrient-Methode aufrufen
+    // (vgl. App "KDSudoku - stehendes Bild"). Liegt wohl daran, dass ich AVFoundation verwende?
+    
     sudokuImage = uiImage
 
     //KD 190406 In den folgenden zwei statements könnte ich auch sudokuImage verwenden, da Vison die Koordinaten des entdeckten Rechtecks in relativen Werten (zwischen 0.0 und 1.0) zurückgibt
@@ -377,10 +390,51 @@ extension ViewController: VideoCaptureDelegate {
       return image
     }
     
+    //KD 190514 muss schauen, ob die Funktion geschachtelte Funktion bleiben soll
+    func preparePathLayer(originalImage: UIImage) {
+      pathLayer?.removeFromSuperlayer()
+      pathLayer = nil
+      
+      // Transform image to fit screen.
+      guard let cgImage = originalImage.cgImage else {
+        print("Trying to show an image not backed by CGImage!")
+        return
+      }
+      
+      let fullImageWidth = CGFloat(cgImage.width)
+      let fullImageHeight = CGFloat(cgImage.height)
+      
+      let imageFrame = videoPreview.frame
+      let widthRatio = fullImageWidth / imageFrame.width
+      let heightRatio = fullImageHeight / imageFrame.height
+      
+      // ScaleAspectFit: The image will be scaled down according to the stricter dimension.
+      let scaleDownRatio = max(widthRatio, heightRatio)
+      
+      // Cache image dimensions to reference when drawing CALayer paths.
+      imageWidth = fullImageWidth / scaleDownRatio
+      imageHeight = fullImageHeight / scaleDownRatio
+      
+      // Prepare pathLayer to hold Vision results.
+      let xLayer = (imageFrame.width - imageWidth) / 2
+      let yLayer = videoPreview.frame.minY + (imageFrame.height - imageHeight) / 2
+      let drawingLayer = CALayer()
+      drawingLayer.bounds = CGRect(x: xLayer, y: yLayer, width: imageWidth, height: imageHeight)
+      drawingLayer.anchorPoint = CGPoint.zero
+      drawingLayer.position = CGPoint(x: xLayer, y: yLayer)
+      drawingLayer.opacity = 0.5
+      pathLayer = drawingLayer
+      print(pathLayer.debugDescription)
+      self.view.layer.addSublayer(pathLayer!)
+    }
+    
     if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
       //KD 190503: frei nach https://gist.github.com/johnnyclem/11015360
       let ciImage = CIImage.init(cvImageBuffer: imageBuffer)
       let uiImage : UIImage = convert(cmage: ciImage)
+      DispatchQueue.main.async {
+        preparePathLayer(originalImage: uiImage)
+      }
       detectRectangles(uiImage: uiImage)
       print("\(ciImage.debugDescription)")
       print(Date())
