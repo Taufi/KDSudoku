@@ -24,7 +24,7 @@ class ViewController: UIViewController {
   var firstTime = true
   var videoCapture: VideoCapture!
   
-  var sudokuArray = Array(repeating: Array(repeating: 0, count: 9), count: 9)
+  var sudokuMatrix = Array(repeating: Array(repeating: 0, count: 9), count: 9)
   
   //KD 190502: siehe Erläuterung in AppDelegate
   let queue = DispatchQueue(label: "de.klausdresbach.digit-recognition-queue")
@@ -34,8 +34,8 @@ class ViewController: UIViewController {
   var pathLayer: CALayer?
   
   // Image parameters for reuse throughout app
-  var imageWidth: CGFloat = 0
-  var imageHeight: CGFloat = 0
+//  var imageWidth: CGFloat = 0
+//  var imageHeight: CGFloat = 0
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -64,7 +64,7 @@ class ViewController: UIViewController {
     // Change this line to limit how often the video capture delegate gets
     // called. 1 means it is called 30 times per second, which gives realtime
     // results but also uses more battery power.
-    videoCapture.frameInterval = 150
+    videoCapture.frameInterval = 90 //alle drei Sekunden
     
     videoCapture.setUp(sessionPreset: .high) { success in
       if success {
@@ -91,7 +91,7 @@ class ViewController: UIViewController {
   func initArray() {
     for i in 0..<9 {
       for j in 0..<9 {
-        sudokuArray[i][j] = 0
+        sudokuMatrix[i][j] = 0
       }
     }
   }
@@ -189,7 +189,7 @@ class ViewController: UIViewController {
       guard let drawLayer = self.pathLayer else {
           return
       }
-      self.draw(rectangles: results, onImageWithBounds: drawLayer.bounds)
+      self.draw(rectangle: rect, onImageWithBounds: drawLayer.bounds)
       drawLayer.setNeedsDisplay()
     }
     
@@ -203,12 +203,12 @@ class ViewController: UIViewController {
     
     guard let cg = image.cgImage else { return }
     
-     let factor = CGFloat(cg.width) / image.size.width
+    let factor = CGFloat(cg.width) / image.size.width
     
-    let rectCrop = CGRect(x: originX * factor, y: originY * factor, width: width * factor * factor, height: height * factor)
-    if let suIm = cg.cropping(to: rectCrop) {
-      print("\(suIm.height)")
-    }
+//    let rectCrop = CGRect(x: originX * factor, y: originY * factor, width: width * factor * factor, height: height * factor)
+//    if let suIm = cg.cropping(to: rectCrop) {
+//      print("\(suIm.height)")
+//    }
     
     for i in 0..<9 {
       for j in 0..<9 {
@@ -222,7 +222,7 @@ class ViewController: UIViewController {
           //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
           // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
           self.classify(image: uiImage) { (value) in
-            self.sudokuArray[i][j] = value
+            self.sudokuMatrix[i][j] = value
           }
     
           //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
@@ -234,18 +234,27 @@ class ViewController: UIViewController {
     
     group.notify(queue: queue) { //KD 190502: siehe Erläuterung in AppDelegate
       DispatchQueue.main.async {
-               print(self.sudokuArray)
-        var sudokuPrint = ""
+       
+        var sudokoArray = [Int]()
         for i in 0..<9 {
-          for j in 0..<9 {
-            let printChar = self.sudokuArray[i][j] == 0 ? " _ " : " \(self.sudokuArray[i][j]) "
-            sudokuPrint.append("\(printChar)")
-          }
-          sudokuPrint.append("\n\n")
+          sudokoArray += self.sudokuMatrix[i].filter { $0 > 0}
         }
         
+        if sudokoArray.count > 15 {
+           print(self.sudokuMatrix)
+        }
+        
+//        var sudokuPrint = ""
+//        for i in 0..<9 {
+//          for j in 0..<9 {
+//            let printChar = self.sudokuMatrix[i][j] == 0 ? " _ " : " \(self.sudokuMatrix[i][j]) "
+//            sudokuPrint.append("\(printChar)")
+//          }
+//          sudokuPrint.append("\n\n")
+//        }
+        
      //   self.textView.text = sudokuPrint
-        self.resultsLabel.text = "\(self.sudokuArray[8][0])\(self.sudokuArray[8][1])\(self.sudokuArray[8][2])\(self.sudokuArray[8][3])\(self.sudokuArray[8][4])\(self.sudokuArray[8][5])\(self.sudokuArray[8][6])\(self.sudokuArray[8][7])\(self.sudokuArray[8][8])"
+//        self.resultsLabel.text = "\(self.sudokuMatrix[8][0])\(self.sudokuMatrix[8][1])\(self.sudokuMatrix[8][2])\(self.sudokuMatrix[8][3])\(self.sudokuMatrix[8][4])\(self.sudokuMatrix[8][5])\(self.sudokuMatrix[8][6])\(self.sudokuMatrix[8][7])\(self.sudokuMatrix[8][8])"
       }
     }
   }
@@ -279,7 +288,7 @@ class ViewController: UIViewController {
     layer.fillColor = nil // No fill to show boxed object
     layer.shadowOpacity = 0
     layer.shadowRadius = 0
-    layer.borderWidth = 2
+    layer.borderWidth = 5
     
     // Vary the line color according to input.
     layer.borderColor = color.cgColor
@@ -295,15 +304,15 @@ class ViewController: UIViewController {
     return layer
   }
   
-  fileprivate func draw(rectangles: [VNRectangleObservation], onImageWithBounds bounds: CGRect) {
+  fileprivate func draw(rectangle: VNRectangleObservation, onImageWithBounds bounds: CGRect) {
     CATransaction.begin()
-    for observation in rectangles {
-      let rectBox = boundingBox(forRegionOfInterest: observation.boundingBox, withinImageBounds: bounds)
-      let rectLayer = shapeLayer(color: .blue, frame: rectBox)
+    
+    let rectBox = boundingBox(forRegionOfInterest: rectangle.boundingBox, withinImageBounds: bounds)
+    let rectLayer = shapeLayer(color: .blue, frame: rectBox)
       
       // Add to pathLayer on top of image.
-      pathLayer?.addSublayer(rectLayer)
-    }
+    pathLayer?.addSublayer(rectLayer)
+    
     CATransaction.commit()
   }
   
@@ -412,8 +421,8 @@ extension ViewController: VideoCaptureDelegate {
       let scaleDownRatio = max(widthRatio, heightRatio)
       
       // Cache image dimensions to reference when drawing CALayer paths.
-      imageWidth = fullImageWidth / scaleDownRatio
-      imageHeight = fullImageHeight / scaleDownRatio
+      let imageWidth = fullImageWidth / scaleDownRatio
+      let imageHeight = fullImageHeight / scaleDownRatio
       
       // Prepare pathLayer to hold Vision results.
       let xLayer = (imageFrame.width - imageWidth) / 2
@@ -424,7 +433,7 @@ extension ViewController: VideoCaptureDelegate {
       drawingLayer.position = CGPoint(x: xLayer, y: yLayer)
       drawingLayer.opacity = 0.5
       pathLayer = drawingLayer
-      print(pathLayer.debugDescription)
+//      print(pathLayer.debugDescription)
       self.view.layer.addSublayer(pathLayer!)
     }
     
@@ -436,8 +445,8 @@ extension ViewController: VideoCaptureDelegate {
         preparePathLayer(originalImage: uiImage)
       }
       detectRectangles(uiImage: uiImage)
-      print("\(ciImage.debugDescription)")
-      print(Date())
+//      print("\(ciImage.debugDescription)")
+//      print(Date())
     }
 //    classify(sampleBuffer: sampleBuffer)
   }
