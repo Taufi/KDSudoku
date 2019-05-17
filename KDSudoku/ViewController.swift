@@ -95,7 +95,12 @@ class ViewController: UIViewController {
       }
     }
   }
-
+  
+  
+  @IBAction func screenTapped(_ sender: Any) {
+    videoCapture.isRunning() ? videoCapture.stop() : videoCapture.start()
+  }
+  
   
   func showResultsView(delay: TimeInterval = 0.1) {
     resultsConstraint.constant = 100
@@ -241,9 +246,10 @@ class ViewController: UIViewController {
         }
         
         if sudokoArray.count > 15 {
-           print(self.sudokuMatrix)
+          print(self.sudokuMatrix)
           self.resultsLabel.text = "\(sudokoArray.count) Felder gefüllt"
           self.showResultsView()
+          self.videoCapture.stop()
         }
         
 //        var sudokuPrint = ""

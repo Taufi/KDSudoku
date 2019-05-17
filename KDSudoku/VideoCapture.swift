@@ -91,6 +91,10 @@ public class VideoCapture: NSObject {
     }
   }
   
+  public func isRunning()  -> Bool {
+    return captureSession.isRunning
+  }
+  
 }
 
 extension VideoCapture: AVCaptureVideoDataOutputSampleBufferDelegate {
