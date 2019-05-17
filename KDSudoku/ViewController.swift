@@ -242,6 +242,8 @@ class ViewController: UIViewController {
         
         if sudokoArray.count > 15 {
            print(self.sudokuMatrix)
+          self.resultsLabel.text = "\(sudokoArray.count) Felder gefüllt"
+          self.showResultsView()
         }
         
 //        var sudokuPrint = ""
