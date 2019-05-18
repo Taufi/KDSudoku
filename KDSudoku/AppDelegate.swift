@@ -21,6 +21,8 @@
 //  - eigentlich reicht es, nur ein Rechteck zu drawen (gehe noch mit dem Array rein, das kann
 //    irreführend sein, wenn ich zwei Suokus anzeige aber nur eines löse) - erledigt
 //  - Capture-Frequenz erhöhen (auch mal richtig hoch ;-)) - erledigt
+//
+//KD 190517 Anzeige des erkannten Sudoku im resultsTextView
 
 
 import UIKit

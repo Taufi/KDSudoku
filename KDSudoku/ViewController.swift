@@ -17,7 +17,7 @@ class ViewController: UIViewController {
   //  @IBOutlet var imageView: UIImageView!
   @IBOutlet var videoPreview: UIView!
   @IBOutlet var resultsView: UIView!
-  @IBOutlet var resultsLabel: UILabel!
+  @IBOutlet var resultsTextView: UITextView!
   @IBOutlet var resultsConstraint: NSLayoutConstraint!
   
   var sudokuImage: UIImage?
@@ -41,9 +41,9 @@ class ViewController: UIViewController {
     super.viewDidLoad()
   
     resultsView.alpha = 0
-    resultsLabel.text = "choose or take a sudoku photo"
+//    resultsLabel.text = "choose or take a sudoku photo"
     
-    resultsLabel.text = ""
+//    resultsLabel.text = ""
     setUpCamera()
   }
   
@@ -51,10 +51,10 @@ class ViewController: UIViewController {
     super.viewDidAppear(animated)
     
     // Show the "choose or take a photo" hint when the app is opened.
-    if firstTime {
-      showResultsView(delay: 0.5)
-      firstTime = false
-    }
+//    if firstTime {
+//      showResultsView(delay: 0.5)
+//      firstTime = false
+//    }
   }
   
   func setUpCamera() {
@@ -98,6 +98,7 @@ class ViewController: UIViewController {
   
   
   @IBAction func screenTapped(_ sender: Any) {
+    hideResultsView()
     videoCapture.isRunning() ? videoCapture.stop() : videoCapture.start()
   }
   
@@ -153,7 +154,7 @@ class ViewController: UIViewController {
     DispatchQueue.main.async {
       if let results = request.results as? [VNClassificationObservation] {
         if results.isEmpty {
-          self.resultsLabel.text = "nichts gefunden"
+          self.resultsTextView.text = "nichts gefunden"
         } else {
 //          self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
 
@@ -164,11 +165,11 @@ class ViewController: UIViewController {
 
         }
       } else if let error = error {
-        self.resultsLabel.text = "Fehler: \(error.localizedDescription)"
+        self.resultsTextView.text = "Fehler: \(error.localizedDescription)"
       } else {
-        self.resultsLabel.text = "???"
+        self.resultsTextView.text = "???"
       }
-      self.showResultsView()
+//      self.showResultsView()
     }
   }
   
@@ -184,7 +185,7 @@ class ViewController: UIViewController {
       let image = self.sudokuImage
       else {
         DispatchQueue.main.async {
-          self.resultsLabel.text = "Bääää"
+          self.resultsTextView.text = "Bääää"
           self.showResultsView()
           print("Bäääääää")
         }
@@ -247,21 +248,24 @@ class ViewController: UIViewController {
         
         if sudokoArray.count > 15 {
           print(self.sudokuMatrix)
-          self.resultsLabel.text = "\(sudokoArray.count) Felder gefüllt"
+          var sudokuPrint = ""
+          for i in 0..<9 {
+            for j in 0..<9 {
+              let printChar = self.sudokuMatrix[i][j] == 0 ? " _ " : " \(self.sudokuMatrix[i][j]) "
+              sudokuPrint.append("\(printChar)")
+            }
+            sudokuPrint.append("\n\n")
+          }
+          self.resultsTextView.text = sudokuPrint
+          self.pathLayer?.removeFromSuperlayer()
+          self.pathLayer = nil
           self.showResultsView()
           self.videoCapture.stop()
         }
         
-//        var sudokuPrint = ""
-//        for i in 0..<9 {
-//          for j in 0..<9 {
-//            let printChar = self.sudokuMatrix[i][j] == 0 ? " _ " : " \(self.sudokuMatrix[i][j]) "
-//            sudokuPrint.append("\(printChar)")
-//          }
-//          sudokuPrint.append("\n\n")
-//        }
         
-     //   self.textView.text = sudokuPrint
+        
+       
 //        self.resultsLabel.text = "\(self.sudokuMatrix[8][0])\(self.sudokuMatrix[8][1])\(self.sudokuMatrix[8][2])\(self.sudokuMatrix[8][3])\(self.sudokuMatrix[8][4])\(self.sudokuMatrix[8][5])\(self.sudokuMatrix[8][6])\(self.sudokuMatrix[8][7])\(self.sudokuMatrix[8][8])"
       }
     }
