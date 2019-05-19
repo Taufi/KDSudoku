@@ -18,11 +18,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9oc-RU-HP1">
-                                <rect key="frame" x="0.0" y="0.0" width="382" height="667"/>
+                            <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EHH-PY-BHX">
+                                <rect key="frame" x="0.0" y="0.0" width="374" height="667"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </view>
+                            </arscnView>
                             <visualEffectView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FkF-wO-Ao3">
                                 <rect key="frame" x="29" y="38" width="330" height="324"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="UgK-Bp-9sd">
@@ -63,7 +62,7 @@
                         <outlet property="resultsConstraint" destination="JRs-Hl-ms6" id="cjz-eH-cNM"/>
                         <outlet property="resultsTextView" destination="eII-cz-05g" id="hEb-z5-6xX"/>
                         <outlet property="resultsView" destination="FkF-wO-Ao3" id="mI2-Hc-MDo"/>
-                        <outlet property="videoPreview" destination="9oc-RU-HP1" id="z4R-I9-dte"/>
+                        <outlet property="videoPreview" destination="EHH-PY-BHX" id="1H9-gf-SRG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

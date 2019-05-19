@@ -10,12 +10,13 @@ import UIKit
 import CoreML
 import Vision
 import AVFoundation
+import ARKit
 //import CoreVideo
 
 class ViewController: UIViewController {
 
   //  @IBOutlet var imageView: UIImageView!
-  @IBOutlet var videoPreview: UIView!
+  @IBOutlet var videoPreview: ARSCNView!
   @IBOutlet var resultsView: UIView!
   @IBOutlet var resultsTextView: UITextView!
   @IBOutlet var resultsConstraint: NSLayoutConstraint!
