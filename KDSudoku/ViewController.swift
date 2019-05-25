@@ -9,21 +9,19 @@
 import UIKit
 import CoreML
 import Vision
-import AVFoundation
 import ARKit
 //import CoreVideo
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, ARSCNViewDelegate {
 
-  //  @IBOutlet var imageView: UIImageView!
-  @IBOutlet var videoPreview: ARSCNView!
+  @IBOutlet var sceneView: ARSCNView!
   @IBOutlet var resultsView: UIView!
   @IBOutlet var resultsTextView: UITextView!
   @IBOutlet var resultsConstraint: NSLayoutConstraint!
   
   var sudokuImage: UIImage?
   var firstTime = true
-  var videoCapture: VideoCapture!
+  var count = 0
   
   var sudokuMatrix = Array(repeating: Array(repeating: 0, count: 9), count: 9)
   
@@ -34,61 +32,29 @@ class ViewController: UIViewController {
   //KD 190505 zur Visionalisierung des Sudoku-Rechtecks
   var pathLayer: CALayer?
   
-  // Image parameters for reuse throughout app
-//  var imageWidth: CGFloat = 0
-//  var imageHeight: CGFloat = 0
-  
   override func viewDidLoad() {
     super.viewDidLoad()
   
     resultsView.alpha = 0
-//    resultsLabel.text = "choose or take a sudoku photo"
     
-//    resultsLabel.text = ""
-    setUpCamera()
+    sceneView.delegate = self
+    sceneView.showsStatistics = true
+    sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
   }
   
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-    
-    // Show the "choose or take a photo" hint when the app is opened.
-//    if firstTime {
-//      showResultsView(delay: 0.5)
-//      firstTime = false
-//    }
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    let configuration = ARWorldTrackingConfiguration()
+    sceneView.session.run(configuration)
+    sceneView.session.delegate = self
   }
   
-  func setUpCamera() {
-    videoCapture = VideoCapture()
-    videoCapture.delegate = self
-    
-    // Change this line to limit how often the video capture delegate gets
-    // called. 1 means it is called 30 times per second, which gives realtime
-    // results but also uses more battery power.
-    videoCapture.frameInterval = 90 //alle drei Sekunden
-    
-    videoCapture.setUp(sessionPreset: .high) { success in
-      if success {
-        // Add the video preview into the UI.
-        if let previewLayer = self.videoCapture.previewLayer {
-          self.videoPreview.layer.addSublayer(previewLayer)
-          self.resizePreviewLayer()
-        }
-        self.videoCapture.start()
-      }
-    }
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+    sceneView.session.pause()
   }
   
-  //KD 190503 brauche ich das???
-  override func viewWillLayoutSubviews() {
-    super.viewWillLayoutSubviews()
-    resizePreviewLayer()
-  }
-  
-  func resizePreviewLayer() {
-    videoCapture.previewLayer?.frame = videoPreview.bounds
-  }
-  
+
   func initArray() {
     for i in 0..<9 {
       for j in 0..<9 {
@@ -100,7 +66,6 @@ class ViewController: UIViewController {
   
   @IBAction func screenTapped(_ sender: Any) {
     hideResultsView()
-    videoCapture.isRunning() ? videoCapture.stop() : videoCapture.start()
   }
   
   
@@ -261,7 +226,6 @@ class ViewController: UIViewController {
           self.pathLayer?.removeFromSuperlayer()
           self.pathLayer = nil
           self.showResultsView()
-          self.videoCapture.stop()
         }
         
         
@@ -401,6 +365,19 @@ class ViewController: UIViewController {
   
 }
 
+extension ViewController: ARSessionDelegate{
+  
+  func session(_ session: ARSession, didUpdate frame: ARFrame) {
+    let image = CIImage(cvPixelBuffer: frame.capturedImage)
+    if count == 180 {
+      print(image.debugDescription)
+      count = 0
+    } else {
+      count += 1
+    }
+  }
+}
+
 extension ViewController: VideoCaptureDelegate {
   func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame sampleBuffer: CMSampleBuffer) {
     
@@ -426,7 +403,7 @@ extension ViewController: VideoCaptureDelegate {
       let fullImageWidth = CGFloat(cgImage.width)
       let fullImageHeight = CGFloat(cgImage.height)
       
-      let imageFrame = videoPreview.frame
+      let imageFrame = sceneView.frame
       let widthRatio = fullImageWidth / imageFrame.width
       let heightRatio = fullImageHeight / imageFrame.height
       
@@ -439,7 +416,7 @@ extension ViewController: VideoCaptureDelegate {
       
       // Prepare pathLayer to hold Vision results.
       let xLayer = (imageFrame.width - imageWidth) / 2
-      let yLayer = videoPreview.frame.minY + (imageFrame.height - imageHeight) / 2
+      let yLayer = sceneView.frame.minY + (imageFrame.height - imageHeight) / 2
       let drawingLayer = CALayer()
       drawingLayer.bounds = CGRect(x: xLayer, y: yLayer, width: imageWidth, height: imageHeight)
       drawingLayer.anchorPoint = CGPoint.zero
