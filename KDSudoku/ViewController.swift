@@ -177,10 +177,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     let factor = CGFloat(cg.width) / image.size.width
     
-//    let rectCrop = CGRect(x: originX * factor, y: originY * factor, width: width * factor * factor, height: height * factor)
-//    if let suIm = cg.cropping(to: rectCrop) {
-//      print("\(suIm.height)")
-//    }
+    let rectCrop = CGRect(x: originX * factor, y: originY * factor, width: width * factor * factor, height: height * factor)
+    if let suIm = cg.cropping(to: rectCrop) {
+      let uiImage:UIImage = UIImage.init(cgImage: suIm)
+      print("(\(uiImage.size.height),\(uiImage.size.width))")
+    }
     
     for i in 0..<9 {
       for j in 0..<9 {
@@ -367,10 +368,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
 extension ViewController: ARSessionDelegate{
   
+  func convert(cmage:CIImage) -> UIImage
+  {
+    let context:CIContext = CIContext.init(options: nil)
+    let cgImage:CGImage = context.createCGImage(cmage, from: cmage.extent)!
+    let image:UIImage = UIImage.init(cgImage: cgImage)
+    return image
+  }
+  
   func session(_ session: ARSession, didUpdate frame: ARFrame) {
-    let image = CIImage(cvPixelBuffer: frame.capturedImage)
+    let ciImage = CIImage(cvPixelBuffer: frame.capturedImage)
+    let uiImage = convert(cmage: ciImage)
     if count == 180 {
-      print(image.debugDescription)
+      print(uiImage.debugDescription)
+      detectRectangles(uiImage: uiImage)
       count = 0
     } else {
       count += 1
