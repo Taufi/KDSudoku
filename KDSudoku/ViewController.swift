@@ -22,6 +22,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   var sudokuImage: UIImage?
   var firstTime = true
   var count = 0
+  var isReady = false
   
   var sudokuMatrix = Array(repeating: Array(repeating: 0, count: 9), count: 9)
   
@@ -200,7 +201,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
           //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
           // wenn ich sie auf dem Device laufen ließ. Simulator und Photo Library ging.
-          // self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
+           self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
         }
       }
     }
@@ -214,6 +215,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
         
         if sudokoArray.count > 15 {
+          self.isReady = true
           print(self.sudokuMatrix)
           var sudokuPrint = ""
           for i in 0..<9 {
@@ -266,7 +268,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     layer.fillColor = nil // No fill to show boxed object
     layer.shadowOpacity = 0
     layer.shadowRadius = 0
-    layer.borderWidth = 5
+    layer.borderWidth = 3
     
     // Vary the line color according to input.
     layer.borderColor = color.cgColor
@@ -368,6 +370,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 
 extension ViewController: ARSessionDelegate{
   
+  func session(_ session: ARSession, didUpdate frame: ARFrame) {
+    if count == 180 && !isReady {
+      let ciImage = CIImage(cvPixelBuffer: frame.capturedImage)
+      let uiImage = convert(cmage: ciImage)
+      let rotatedImage = uiImage.rotate(radians: .pi / 2)
+      DispatchQueue.main.async {
+        self.preparePathLayer(originalImage: rotatedImage  )
+      }
+      detectRectangles(uiImage: rotatedImage)
+      count = 0
+    } else {
+      count += 1
+    }
+  }
+  
   func convert(cmage:CIImage) -> UIImage
   {
     let context:CIContext = CIContext.init(options: nil)
@@ -376,81 +393,134 @@ extension ViewController: ARSessionDelegate{
     return image
   }
   
-  func session(_ session: ARSession, didUpdate frame: ARFrame) {
-    let ciImage = CIImage(cvPixelBuffer: frame.capturedImage)
-    let uiImage = convert(cmage: ciImage)
-    if count == 180 {
-      print(uiImage.debugDescription)
-      detectRectangles(uiImage: uiImage)
-      count = 0
-    } else {
-      count += 1
+  //KD 190514 muss schauen, ob die Funktion geschachtelte Funktion bleiben soll
+  func preparePathLayer(originalImage: UIImage) {
+    pathLayer?.removeFromSuperlayer()
+    pathLayer = nil
+    
+    // Transform image to fit screen.
+    guard let cgImage = originalImage.cgImage else {
+      print("Trying to show an image not backed by CGImage!")
+      return
     }
+    
+    let fullImageWidth = CGFloat(cgImage.width)
+    let fullImageHeight = CGFloat(cgImage.height)
+    
+    let imageFrame = sceneView.frame
+    let widthRatio = fullImageWidth / imageFrame.width
+    let heightRatio = fullImageHeight / imageFrame.height
+    
+    // ScaleAspectFit: The image will be scaled down according to the stricter dimension.
+    let scaleDownRatio = max(widthRatio, heightRatio)
+    
+    // Cache image dimensions to reference when drawing CALayer paths.
+    let imageWidth = fullImageWidth / scaleDownRatio
+    let imageHeight = fullImageHeight / scaleDownRatio
+    
+    // Prepare pathLayer to hold Vision results.
+    let xLayer = (imageFrame.width - imageWidth) / 2
+    let yLayer = sceneView.frame.minY + (imageFrame.height - imageHeight) / 2
+    let drawingLayer = CALayer()
+    drawingLayer.bounds = CGRect(x: xLayer, y: yLayer, width: imageWidth, height: imageHeight)
+    drawingLayer.anchorPoint = CGPoint.zero
+    drawingLayer.position = CGPoint(x: xLayer, y: yLayer)
+    drawingLayer.opacity = 0.5
+    pathLayer = drawingLayer
+    //      print(pathLayer.debugDescription)
+    self.view.layer.addSublayer(pathLayer!)
+  }
+
+}
+
+//KD 190525 von nier: https://stackoverflow.com/questions/40882487/how-to-rotate-image-in-swift
+extension UIImage {
+  func rotate(radians: CGFloat) -> UIImage {
+    let rotatedSize = CGRect(origin: .zero, size: size)
+      .applying(CGAffineTransform(rotationAngle: CGFloat(radians)))
+      .integral.size
+    UIGraphicsBeginImageContext(rotatedSize)
+    if let context = UIGraphicsGetCurrentContext() {
+      let origin = CGPoint(x: rotatedSize.width / 2.0,
+                           y: rotatedSize.height / 2.0)
+      context.translateBy(x: origin.x, y: origin.y)
+      context.rotate(by: radians)
+      draw(in: CGRect(x: -origin.y, y: -origin.x,
+                      width: size.width, height: size.height))
+      let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
+      UIGraphicsEndImageContext()
+      
+      return rotatedImage ?? self
+    }
+    
+    return self
   }
 }
 
-extension ViewController: VideoCaptureDelegate {
-  func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame sampleBuffer: CMSampleBuffer) {
-    
-    func convert(cmage:CIImage) -> UIImage
-    {
-      let context:CIContext = CIContext.init(options: nil)
-      let cgImage:CGImage = context.createCGImage(cmage, from: cmage.extent)!
-      let image:UIImage = UIImage.init(cgImage: cgImage)
-      return image
-    }
-    
-    //KD 190514 muss schauen, ob die Funktion geschachtelte Funktion bleiben soll
-    func preparePathLayer(originalImage: UIImage) {
-      pathLayer?.removeFromSuperlayer()
-      pathLayer = nil
-      
-      // Transform image to fit screen.
-      guard let cgImage = originalImage.cgImage else {
-        print("Trying to show an image not backed by CGImage!")
-        return
-      }
-      
-      let fullImageWidth = CGFloat(cgImage.width)
-      let fullImageHeight = CGFloat(cgImage.height)
-      
-      let imageFrame = sceneView.frame
-      let widthRatio = fullImageWidth / imageFrame.width
-      let heightRatio = fullImageHeight / imageFrame.height
-      
-      // ScaleAspectFit: The image will be scaled down according to the stricter dimension.
-      let scaleDownRatio = max(widthRatio, heightRatio)
-      
-      // Cache image dimensions to reference when drawing CALayer paths.
-      let imageWidth = fullImageWidth / scaleDownRatio
-      let imageHeight = fullImageHeight / scaleDownRatio
-      
-      // Prepare pathLayer to hold Vision results.
-      let xLayer = (imageFrame.width - imageWidth) / 2
-      let yLayer = sceneView.frame.minY + (imageFrame.height - imageHeight) / 2
-      let drawingLayer = CALayer()
-      drawingLayer.bounds = CGRect(x: xLayer, y: yLayer, width: imageWidth, height: imageHeight)
-      drawingLayer.anchorPoint = CGPoint.zero
-      drawingLayer.position = CGPoint(x: xLayer, y: yLayer)
-      drawingLayer.opacity = 0.5
-      pathLayer = drawingLayer
-//      print(pathLayer.debugDescription)
-      self.view.layer.addSublayer(pathLayer!)
-    }
-    
-    if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-      //KD 190503: frei nach https://gist.github.com/johnnyclem/11015360
-      let ciImage = CIImage.init(cvImageBuffer: imageBuffer)
-      let uiImage : UIImage = convert(cmage: ciImage)
-      DispatchQueue.main.async {
-        preparePathLayer(originalImage: uiImage)
-      }
-      detectRectangles(uiImage: uiImage)
-//      print("\(ciImage.debugDescription)")
-//      print(Date())
-    }
-//    classify(sampleBuffer: sampleBuffer)
-  }
-}
+////////////////////////////////////////////////////////
+
+//extension ViewController: VideoCaptureDelegate {
+//  func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame sampleBuffer: CMSampleBuffer) {
+//
+//    func convert(cmage:CIImage) -> UIImage
+//    {
+//      let context:CIContext = CIContext.init(options: nil)
+//      let cgImage:CGImage = context.createCGImage(cmage, from: cmage.extent)!
+//      let image:UIImage = UIImage.init(cgImage: cgImage)
+//      return image
+//    }
+//
+//    //KD 190514 muss schauen, ob die Funktion geschachtelte Funktion bleiben soll
+//    func preparePathLayer(originalImage: UIImage) {
+//      pathLayer?.removeFromSuperlayer()
+//      pathLayer = nil
+//
+//      // Transform image to fit screen.
+//      guard let cgImage = originalImage.cgImage else {
+//        print("Trying to show an image not backed by CGImage!")
+//        return
+//      }
+//
+//      let fullImageWidth = CGFloat(cgImage.width)
+//      let fullImageHeight = CGFloat(cgImage.height)
+//
+//      let imageFrame = sceneView.frame
+//      let widthRatio = fullImageWidth / imageFrame.width
+//      let heightRatio = fullImageHeight / imageFrame.height
+//
+//      // ScaleAspectFit: The image will be scaled down according to the stricter dimension.
+//      let scaleDownRatio = max(widthRatio, heightRatio)
+//
+//      // Cache image dimensions to reference when drawing CALayer paths.
+//      let imageWidth = fullImageWidth / scaleDownRatio
+//      let imageHeight = fullImageHeight / scaleDownRatio
+//
+//      // Prepare pathLayer to hold Vision results.
+//      let xLayer = (imageFrame.width - imageWidth) / 2
+//      let yLayer = sceneView.frame.minY + (imageFrame.height - imageHeight) / 2
+//      let drawingLayer = CALayer()
+//      drawingLayer.bounds = CGRect(x: xLayer, y: yLayer, width: imageWidth, height: imageHeight)
+//      drawingLayer.anchorPoint = CGPoint.zero
+//      drawingLayer.position = CGPoint(x: xLayer, y: yLayer)
+//      drawingLayer.opacity = 0.5
+//      pathLayer = drawingLayer
+////      print(pathLayer.debugDescription)
+//      self.view.layer.addSublayer(pathLayer!)
+//    }
+//
+//    if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+//      //KD 190503: frei nach https://gist.github.com/johnnyclem/11015360
+//      let ciImage = CIImage.init(cvImageBuffer: imageBuffer)
+//      let uiImage : UIImage = convert(cmage: ciImage)
+//      DispatchQueue.main.async {
+//        preparePathLayer(originalImage: uiImage)
+//      }
+//      detectRectangles(uiImage: uiImage)
+////      print("\(ciImage.debugDescription)")
+////      print(Date())
+//    }
+////    classify(sampleBuffer: sampleBuffer)
+//  }
+//}
 
 
