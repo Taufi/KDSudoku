@@ -180,11 +180,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     let factor = CGFloat(cg.width) / image.size.width
     
-    let rectCrop = CGRect(x: originX * factor, y: originY * factor, width: width * factor * factor, height: height * factor)
-    if let suIm = cg.cropping(to: rectCrop) {
-      let uiImage:UIImage = UIImage.init(cgImage: suIm)
-      print("(\(uiImage.size.height),\(uiImage.size.width))")
-    }
+//    let rectCrop = CGRect(x: originX * factor, y: originY * factor, width: width * factor * factor, height: height * factor)
+//    if let suIm = cg.cropping(to: rectCrop) {
+//      let uiImage:UIImage = UIImage.init(cgImage: suIm)
+//      print("(\(uiImage.size.height),\(uiImage.size.width))")
+//    }
     
     for i in 0..<9 {
       for j in 0..<9 {
@@ -252,6 +252,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     // Reposition origin.
     rect.origin.x *= imageWidth
+    //KD 190531 Die Koordinaten des Rechtecks beziehen sich auf den Bildausschnitt des SceneView.
+    //          Da das Bild aber nicht deckungsgleich mit dem SceneView ist, sondern nach links rausragt
+    //          muss ich die Verschiebung noch durchführen:
     rect.origin.x += bounds.origin.x
     rect.origin.y = (1 - rect.origin.y) * imageHeight + bounds.origin.y
     
