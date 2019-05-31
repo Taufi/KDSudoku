@@ -67,6 +67,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
   @IBAction func screenTapped(_ sender: Any) {
     hideResultsView()
+    isReady = false
+    count = 0
   }
   
   
@@ -151,11 +153,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       let rect = results.first,
       let image = self.sudokuImage
       else {
-        DispatchQueue.main.async {
-          self.resultsTextView.text = "Bääää"
-          self.showResultsView()
+//        DispatchQueue.main.async {
+//          self.resultsTextView.text = "Bääää"
+//          self.showResultsView()
           print("Bäääääää")
-        }
+//        }
         return }
     
     DispatchQueue.main.async {
@@ -372,6 +374,7 @@ extension ViewController: ARSessionDelegate{
   
   func session(_ session: ARSession, didUpdate frame: ARFrame) {
     if count == 180 && !isReady {
+      count = 0
       let ciImage = CIImage(cvPixelBuffer: frame.capturedImage)
       let uiImage = convert(cmage: ciImage)
       let rotatedImage = uiImage.rotate(radians: .pi / 2)
@@ -379,7 +382,6 @@ extension ViewController: ARSessionDelegate{
         self.preparePathLayer(originalImage: rotatedImage  )
       }
       detectRectangles(uiImage: rotatedImage)
-      count = 0
     } else {
       count += 1
     }
@@ -412,7 +414,9 @@ extension ViewController: ARSessionDelegate{
     let heightRatio = fullImageHeight / imageFrame.height
     
     // ScaleAspectFit: The image will be scaled down according to the stricter dimension.
-    let scaleDownRatio = max(widthRatio, heightRatio)
+    //KD 190530 der entscheidende Unterschied. iOS stellt das Photo auf dem Bildschirn im Format AspectFILL dar
+    //          (vorher stand hier max(widthRatio, heightRatio))
+    let scaleDownRatio = min(widthRatio, heightRatio)
     
     // Cache image dimensions to reference when drawing CALayer paths.
     let imageWidth = fullImageWidth / scaleDownRatio
