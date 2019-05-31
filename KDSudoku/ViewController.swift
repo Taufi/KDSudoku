@@ -10,7 +10,6 @@ import UIKit
 import CoreML
 import Vision
 import ARKit
-//import CoreVideo
 
 class ViewController: UIViewController, ARSCNViewDelegate {
 
@@ -125,8 +124,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         if results.isEmpty {
           self.resultsTextView.text = "nichts gefunden"
         } else {
-//          self.resultsLabel.text = String(format: "Zu %.1f%% eine %@", results[0].confidence * 100, results[0].identifier)
-
           if let resultValue = Int(results[0].identifier) {
             let value = resultValue > 9 ? 0 : resultValue
             completion(value)
@@ -138,7 +135,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       } else {
         self.resultsTextView.text = "???"
       }
-//      self.showResultsView()
     }
   }
   
@@ -153,12 +149,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       let rect = results.first,
       let image = self.sudokuImage
       else {
-//        DispatchQueue.main.async {
-//          self.resultsTextView.text = "Bääää"
-//          self.showResultsView()
-          print("Bäääääää")
-//        }
-        return }
+        print("Bäääääää")
+        return
+    }
     
     DispatchQueue.main.async {
       guard let drawLayer = self.pathLayer else {
@@ -232,11 +225,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           self.pathLayer = nil
           self.showResultsView()
         }
-        
-        
-        
-       
-//        self.resultsLabel.text = "\(self.sudokuMatrix[8][0])\(self.sudokuMatrix[8][1])\(self.sudokuMatrix[8][2])\(self.sudokuMatrix[8][3])\(self.sudokuMatrix[8][4])\(self.sudokuMatrix[8][5])\(self.sudokuMatrix[8][6])\(self.sudokuMatrix[8][7])\(self.sudokuMatrix[8][8])"
       }
     }
   }
@@ -320,7 +308,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     initArray()
     
     //KD 190511 hier muss ich keine scaleAndOrient-Methode aufrufen
-    // (vgl. App "KDSudoku - stehendes Bild"). Liegt wohl daran, dass ich AVFoundation verwende?
+    // (vgl. App "KDSudoku - stehendes Bild"). Liegt wohl daran, dass ich das Bild von Hand drehe?
     
     sudokuImage = uiImage
 
@@ -417,11 +405,10 @@ extension ViewController: ARSessionDelegate{
     let heightRatio = fullImageHeight / imageFrame.height
     
     // ScaleAspectFit: The image will be scaled down according to the stricter dimension.
-    //KD 190530 der entscheidende Unterschied. iOS stellt das Photo auf dem Bildschirn im Format AspectFILL dar
-    //          (vorher stand hier max(widthRatio, heightRatio))
+    //KD 190530 der entscheidende Unterschied: iOS stellt das Photo auf dem Bildschirn im Format AspectFILL
+    //          dar (vorher stand hier max(widthRatio, heightRatio))
     let scaleDownRatio = min(widthRatio, heightRatio)
     
-    // Cache image dimensions to reference when drawing CALayer paths.
     let imageWidth = fullImageWidth / scaleDownRatio
     let imageHeight = fullImageHeight / scaleDownRatio
     
@@ -434,7 +421,6 @@ extension ViewController: ARSessionDelegate{
     drawingLayer.position = CGPoint(x: xLayer, y: yLayer)
     drawingLayer.opacity = 0.5
     pathLayer = drawingLayer
-    //      print(pathLayer.debugDescription)
     self.view.layer.addSublayer(pathLayer!)
   }
 
@@ -463,71 +449,3 @@ extension UIImage {
     return self
   }
 }
-
-////////////////////////////////////////////////////////
-
-//extension ViewController: VideoCaptureDelegate {
-//  func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame sampleBuffer: CMSampleBuffer) {
-//
-//    func convert(cmage:CIImage) -> UIImage
-//    {
-//      let context:CIContext = CIContext.init(options: nil)
-//      let cgImage:CGImage = context.createCGImage(cmage, from: cmage.extent)!
-//      let image:UIImage = UIImage.init(cgImage: cgImage)
-//      return image
-//    }
-//
-//    //KD 190514 muss schauen, ob die Funktion geschachtelte Funktion bleiben soll
-//    func preparePathLayer(originalImage: UIImage) {
-//      pathLayer?.removeFromSuperlayer()
-//      pathLayer = nil
-//
-//      // Transform image to fit screen.
-//      guard let cgImage = originalImage.cgImage else {
-//        print("Trying to show an image not backed by CGImage!")
-//        return
-//      }
-//
-//      let fullImageWidth = CGFloat(cgImage.width)
-//      let fullImageHeight = CGFloat(cgImage.height)
-//
-//      let imageFrame = sceneView.frame
-//      let widthRatio = fullImageWidth / imageFrame.width
-//      let heightRatio = fullImageHeight / imageFrame.height
-//
-//      // ScaleAspectFit: The image will be scaled down according to the stricter dimension.
-//      let scaleDownRatio = max(widthRatio, heightRatio)
-//
-//      // Cache image dimensions to reference when drawing CALayer paths.
-//      let imageWidth = fullImageWidth / scaleDownRatio
-//      let imageHeight = fullImageHeight / scaleDownRatio
-//
-//      // Prepare pathLayer to hold Vision results.
-//      let xLayer = (imageFrame.width - imageWidth) / 2
-//      let yLayer = sceneView.frame.minY + (imageFrame.height - imageHeight) / 2
-//      let drawingLayer = CALayer()
-//      drawingLayer.bounds = CGRect(x: xLayer, y: yLayer, width: imageWidth, height: imageHeight)
-//      drawingLayer.anchorPoint = CGPoint.zero
-//      drawingLayer.position = CGPoint(x: xLayer, y: yLayer)
-//      drawingLayer.opacity = 0.5
-//      pathLayer = drawingLayer
-////      print(pathLayer.debugDescription)
-//      self.view.layer.addSublayer(pathLayer!)
-//    }
-//
-//    if let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-//      //KD 190503: frei nach https://gist.github.com/johnnyclem/11015360
-//      let ciImage = CIImage.init(cvImageBuffer: imageBuffer)
-//      let uiImage : UIImage = convert(cmage: ciImage)
-//      DispatchQueue.main.async {
-//        preparePathLayer(originalImage: uiImage)
-//      }
-//      detectRectangles(uiImage: uiImage)
-////      print("\(ciImage.debugDescription)")
-////      print(Date())
-//    }
-////    classify(sampleBuffer: sampleBuffer)
-//  }
-//}
-
-
