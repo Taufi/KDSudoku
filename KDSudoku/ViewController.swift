@@ -161,6 +161,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       drawLayer.setNeedsDisplay()
     }
     
+    //KD 190602 Die Koordinaten hier beziehen sich auf das Bild
     let imageWidth = image.size.width
     let imageHeight = image.size.height
     let originX = rect.topLeft.x * imageWidth
@@ -223,10 +224,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           self.resultsTextView.text = sudokuPrint
           self.pathLayer?.removeFromSuperlayer()
           self.pathLayer = nil
-          self.showResultsView()
+//          self.showResultsView()
+          self.addBox()
         }
       }
     }
+  }
+  
+  func addBox(x: Float = 0, y: Float = 0, z: Float = -0.2) {
+    let box = SCNBox(width: 0.05, height: 0.05, length: 0.05, chamferRadius: 0)
+    let boxNode = SCNNode()
+    boxNode.geometry = box
+    boxNode.position = SCNVector3(x, y, z)
+    
+    sceneView.scene.rootNode.addChildNode(boxNode)
   }
 
   
@@ -272,6 +283,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     layer.masksToBounds = true
     
     // Transform the layer to have same coordinate system as the imageView underneath it.
+    //KD 190602 dreht den layer inmal um die x-Achse
     layer.transform = CATransform3DMakeScale(1, -1, 1)
     
     return layer
