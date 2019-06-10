@@ -20,8 +20,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
   var sudokuImage: UIImage?
   var firstTime = true
-  var count = 0
-  var isReady = false
+  var detectingRectangles = false
   
   var sudokuMatrix = Array(repeating: Array(repeating: 0, count: 9), count: 9)
   
@@ -66,8 +65,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
   @IBAction func screenTapped(_ sender: Any) {
     hideResultsView()
-    isReady = false
-    count = 0
+    detectingRectangles = false
   }
   
   
@@ -154,6 +152,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       let image = self.sudokuImage
       else {
         print("Bäääääää")
+        detectingRectangles = false
         return
     }
     
@@ -221,7 +220,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         //KD 190610 Liegt ein vernünftiges Ergebnis vor? Falls weniger als 15 Ziffern, dann nicht.
         if sudokoArray.count > 15 {
-          self.isReady = true
           print(self.sudokuMatrix)
           var sudokuPrint = ""
           for i in 0..<9 {
@@ -234,8 +232,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           self.resultsTextView.text = sudokuPrint
           self.pathLayer?.removeFromSuperlayer()
           self.pathLayer = nil
-//          self.showResultsView()
+          self.showResultsView()
           self.addSolution(for: rect)
+        } else {
+          self.detectingRectangles = false
         }
       }
     }
@@ -406,8 +406,8 @@ extension ViewController: ARSessionDelegate{
   
   //KD 190610 hier greife ich die Bilder ab
   func session(_ session: ARSession, didUpdate frame: ARFrame) {
-    if count == 240 && !isReady {
-      count = 0
+    if !detectingRectangles {
+      detectingRectangles = true
       let ciImage = CIImage(cvPixelBuffer: frame.capturedImage)
       let uiImage = convert(cmage: ciImage)
       let rotatedImage = uiImage.rotate(radians: .pi / 2)
@@ -415,8 +415,6 @@ extension ViewController: ARSessionDelegate{
         self.preparePathLayer(originalImage: rotatedImage  )
       }
       detectRectangles(uiImage: rotatedImage)
-    } else {
-      count += 1
     }
   }
   
