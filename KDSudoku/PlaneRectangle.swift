@@ -69,10 +69,10 @@ fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView:
   print("top right ---> \(sceneView.convertFromCamera(rectangle.topRight))")
   print("bottom left ---> \(sceneView.convertFromCamera(rectangle.bottomLeft))")
   print("bottom right ---> \(sceneView.convertFromCamera(rectangle.bottomRight))")
-    let tl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.topLeft), types: .featurePoint)
-    let tr = sceneView.hitTest(sceneView.convertFromCamera(rectangle.topRight), types: .featurePoint)
-    let bl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.bottomLeft), types: .featurePoint)
-    let br = sceneView.hitTest(sceneView.convertFromCamera(rectangle.bottomRight), types: .featurePoint)
+    let tl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.topLeft), types: .existingPlaneUsingExtent)
+    let tr = sceneView.hitTest(sceneView.convertFromCamera(rectangle.topRight), types: .existingPlaneUsingExtent)
+    let bl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.bottomLeft), types: .existingPlaneUsingExtent)
+    let br = sceneView.hitTest(sceneView.convertFromCamera(rectangle.bottomRight), types: .existingPlaneUsingExtent)
     
     print("tl: \(tl.count) tr: \(tr.count) br: \(br.count) bl: \(bl.count)")
     

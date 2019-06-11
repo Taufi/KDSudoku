@@ -31,6 +31,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   //KD 190505 zur Visionalisierung des Sudoku-Rechtecks
   var pathLayer: CALayer?
   
+  // Used to lookup SurfaceNodes by planeAnchor and update them
+  private var surfaceNodes = [ARPlaneAnchor:SurfaceNode]()
+  
   override func viewDidLoad() {
     super.viewDidLoad()
   
@@ -44,6 +47,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     let configuration = ARWorldTrackingConfiguration()
+    configuration.planeDetection = .horizontal
     sceneView.session.run(configuration)
     sceneView.session.delegate = self
   }
@@ -203,7 +207,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
           //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
           // wenn ich sie auf dem Device laufen ließ. Simulator und Photo Library ging.
-//           self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
+           self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
         }
       }
     }
@@ -218,8 +222,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           sudokoArray += self.sudokuMatrix[i].filter { $0 > 0}
         }
         
+        //KD 190611 Oft werden "falsche" Sudokus entdeckt, die aus einer großen Zahl identischer Ziffern
+        //          bestehen. Die filtere ich hier raus. Und Sudokus, die weniger als 16 Ziffern haben.
+        var solutionCorrect = true
+        if sudokoArray.count < 16 {
+          solutionCorrect = false
+        } else {
+          for i in 1..<9 {
+            if (sudokoArray.filter{ $0 == i }.count > 9) {
+              solutionCorrect = false
+              continue
+            }
+          }
+        }
+        
         //KD 190610 Liegt ein vernünftiges Ergebnis vor? Falls weniger als 15 Ziffern, dann nicht.
-        if sudokoArray.count > 15 {
+        if solutionCorrect  {
           print(self.sudokuMatrix)
           var sudokuPrint = ""
           for i in 0..<9 {
@@ -232,7 +250,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           self.resultsTextView.text = sudokuPrint
           self.pathLayer?.removeFromSuperlayer()
           self.pathLayer = nil
-          self.showResultsView()
+//          self.showResultsView()
           self.addSolution(for: rect)
         } else {
           self.detectingRectangles = false
@@ -398,6 +416,43 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     let data = image.pngData()
     //store it in the document directory
     fileManager.createFile(atPath: imagePath as String, contents: data, attributes: nil)
+  }
+  
+  // MARK: - ARSCNViewDelegate
+  
+  func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+    guard let anchor = anchor as? ARPlaneAnchor else {
+      return
+    }
+    
+    let surface = SurfaceNode(anchor: anchor)
+    surfaceNodes[anchor] = surface
+    node.addChildNode(surface)
+    
+//    if message == .helpFindSurface {
+//      message = .helpTapHoldRect
+//    }
+  }
+  
+  func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+    // See if this is a plane we are currently rendering
+    guard let anchor = anchor as? ARPlaneAnchor,
+      let surface = surfaceNodes[anchor] else {
+        return
+    }
+    
+    surface.update(anchor)
+  }
+  
+  func renderer(_ renderer: SCNSceneRenderer, didRemove node: SCNNode, for anchor: ARAnchor) {
+    guard let anchor = anchor as? ARPlaneAnchor,
+      let surface = surfaceNodes[anchor] else {
+        return
+    }
+    
+    surface.removeFromParentNode()
+    
+    surfaceNodes.removeValue(forKey: anchor)
   }
   
 }

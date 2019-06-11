@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		61337EB722B0217700A34C77 /* SurfaceNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61337EB622B0217700A34C77 /* SurfaceNode.swift */; };
 		6134919E22401E0500D4BF57 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6134919D22401E0500D4BF57 /* AppDelegate.swift */; };
 		613491A022401E0500D4BF57 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6134919F22401E0500D4BF57 /* ViewController.swift */; };
 		613491A322401E0500D4BF57 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 613491A122401E0500D4BF57 /* Main.storyboard */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		61337EB622B0217700A34C77 /* SurfaceNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SurfaceNode.swift; sourceTree = "<group>"; };
 		6134919A22401E0500D4BF57 /* KDSudoku.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KDSudoku.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6134919D22401E0500D4BF57 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6134919F22401E0500D4BF57 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 				613491B1224021D800D4BF57 /* numbers.mlmodel */,
 				6134919D22401E0500D4BF57 /* AppDelegate.swift */,
 				6134919F22401E0500D4BF57 /* ViewController.swift */,
+				61337EB622B0217700A34C77 /* SurfaceNode.swift */,
 				61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */,
 				613B542C22AC0CEC00177176 /* RectangleNode.swift */,
 				613491A122401E0500D4BF57 /* Main.storyboard */,
@@ -170,6 +173,7 @@
 			files = (
 				613B543422AC0DE000177176 /* UIView+Extensions.swift in Sources */,
 				613B543622AC0DE000177176 /* SCNVector3+Extensions.swift in Sources */,
+				61337EB722B0217700A34C77 /* SurfaceNode.swift in Sources */,
 				613491A022401E0500D4BF57 /* ViewController.swift in Sources */,
 				613491B022401FC700D4BF57 /* CGImagePropertyOrientation.swift in Sources */,
 				61EC9E9F22AD7C6200EF40D5 /* PlaneRectangle.swift in Sources */,
