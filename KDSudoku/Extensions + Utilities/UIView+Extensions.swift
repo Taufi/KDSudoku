@@ -18,7 +18,9 @@ extension UIView {
         
         switch orientation {
         case .portrait, .unknown:
-            return CGPoint(x: point.y * frame.width, y: point.x * frame.height)
+//          return CGPoint(x: point.y * frame.width, y: point.x * frame.height)
+          //KD 190615 da ich das Bild vor der Suche nach Rectangles gedreht habe, gebe ich hier die Formel für landscapeRight ein
+           return CGPoint(x: point.x * frame.width, y: (1 - point.y) * frame.height)
         case .landscapeLeft:
             return CGPoint(x: (1 - point.x) * frame.width, y: point.y * frame.height)
         case .landscapeRight:
