@@ -41,6 +41,9 @@ class RectangleNode: SCNNode {
         transform = SCNMatrix4Rotate(transform, orientation, 0, 1, 0)
         
         rectNode.transform = transform
+      
+        let image = UIImage(named: "Sudoku.png")
+        rectNode.geometry?.firstMaterial?.diffuse.contents = image
         
         // We add the new node to ourself since we inherited from SCNNode
         self.addChildNode(rectNode)
