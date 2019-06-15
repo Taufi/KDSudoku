@@ -65,10 +65,10 @@ fileprivate enum RectangleCorners {
 fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView: ARSCNView) -> (corners: RectangleCorners, anchor: ARPlaneAnchor)? {
     
     // Perform a hittest on each corner to find intersecting surfaces
-  print("Top Left ---> \(sceneView.convertFromCamera(rectangle.topLeft))")
-  print("top right ---> \(sceneView.convertFromCamera(rectangle.topRight))")
-  print("bottom left ---> \(sceneView.convertFromCamera(rectangle.bottomLeft))")
-  print("bottom right ---> \(sceneView.convertFromCamera(rectangle.bottomRight))")
+//  print("Top Left ---> \(sceneView.convertFromCamera(rectangle.topLeft))")
+//  print("top right ---> \(sceneView.convertFromCamera(rectangle.topRight))")
+//  print("bottom left ---> \(sceneView.convertFromCamera(rectangle.bottomLeft))")
+//  print("bottom right ---> \(sceneView.convertFromCamera(rectangle.bottomRight))")
     let tl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.topLeft), types: .existingPlaneUsingExtent)
     let tr = sceneView.hitTest(sceneView.convertFromCamera(rectangle.topRight), types: .existingPlaneUsingExtent)
     let bl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.bottomLeft), types: .existingPlaneUsingExtent)
