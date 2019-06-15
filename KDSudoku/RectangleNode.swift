@@ -29,7 +29,8 @@ class RectangleNode: SCNNode {
         print("position: \(position) width: \(width) (\(width * meters2inches)\") height: \(height) (\(height * meters2inches)\")")
         
         // Create the 3D plane geometry with the dimensions calculated from corners
-        let planeGeometry = SCNPlane(width: width, height: height)
+        //Kd 190615 die Sudoku-Überdeckungen waren etwas schmal. Daher hier um 30% vergrößert
+        let planeGeometry = SCNPlane(width: width * 1.3, height: height)
         let rectNode = SCNNode(geometry: planeGeometry)
 
         // Planes in SceneKit are vertical by default so we need to rotate
