@@ -42,8 +42,9 @@ class RectangleNode: SCNNode {
         
         rectNode.transform = transform
       
-        let image = UIImage(named: "Sudoku.png")
-        rectNode.geometry?.firstMaterial?.diffuse.contents = image
+//        let image = UIImage(named: "Sudoku.png")
+////        let image = drawSudoku()
+//        rectNode.geometry?.firstMaterial?.diffuse.contents = image
         
         // We add the new node to ourself since we inherited from SCNNode
         self.addChildNode(rectNode)
@@ -54,7 +55,9 @@ class RectangleNode: SCNNode {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }    
+    }
+
+  
 }
 
 

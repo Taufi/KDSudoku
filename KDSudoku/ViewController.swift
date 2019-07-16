@@ -270,7 +270,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     let rectangleNode = RectangleNode(planeRectangle)
+    
+    if let rectNode = rectangleNode.childNodes.first {
+      rectNode.geometry?.firstMaterial?.diffuse.contents = drawSudoku()
+    }
     sceneView.scene.rootNode.addChildNode(rectangleNode)
+    
   }
   
 //  func addBox(x: Float = 0, y: Float = 0, z: Float = -0.2) {
@@ -453,6 +458,48 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     surface.removeFromParentNode()
     
     surfaceNodes.removeValue(forKey: anchor)
+  }
+  
+  func drawSudoku() -> UIImage {
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 513, height: 513))
+    
+    let paragraphStyle = NSMutableParagraphStyle()
+    paragraphStyle.alignment = .center
+    
+    
+    
+    let attrs: [NSAttributedString.Key: Any] = [
+      //      .font: UIFont.systemFont(ofSize: 32),
+      .font: UIFont(name: "ArialMT", size: 32)!,
+      //      .font: UIFont(name: "Arial-BoldMT", size: 32)!,
+      .paragraphStyle: paragraphStyle
+    ]
+    
+    
+    let img = renderer.image { ctx in
+      ctx.cgContext.setFillColor(UIColor.white.cgColor)
+      ctx.cgContext.fill(CGRect(x: CGFloat(0), y: CGFloat(0), width: 513, height: 513).insetBy(dx: 3, dy: 3))
+      ctx.cgContext.setStrokeColor(UIColor.black.cgColor)
+      ctx.cgContext.setLineWidth(6)
+      ctx.cgContext.stroke(CGRect(x: CGFloat(0), y: CGFloat(0), width: 513, height: 513).insetBy(dx: 3, dy: 3))
+      for row in 0..<9 {
+        for col in 0..<9{
+          if (row % 3 == 0) && (col % 3 == 0) {
+            ctx.cgContext.setLineWidth(6)
+            ctx.cgContext.stroke(CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57), width: 171, height: 171))
+          }
+          ctx.cgContext.setLineWidth(2)
+          ctx.cgContext.stroke(CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57), width: 57, height: 57))
+        
+          let string = sudokuMatrix[col][row] == 0 ? "" : String(sudokuMatrix[col][row])
+          let attributedString = NSAttributedString(string: string, attributes: attrs)
+          attributedString.draw(with: CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57 + 10), width: 57, height: 57), options: .usesLineFragmentOrigin, context: nil)
+          
+        }
+      }
+    }
+    
+    return img
   }
   
 }
