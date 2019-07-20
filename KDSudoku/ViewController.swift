@@ -107,7 +107,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       let handler = VNImageRequestHandler(ciImage: ciImage, orientation: orientation)
       do {
         
-        let model = numbers()
+//        let model = numbers()
+        let model = keras_mnist_cnn()
         let visionModel = try VNCoreMLModel(for: model.model)
         let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
           self?.processObservations(for: request, completion: completion, error: error)
@@ -129,6 +130,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           self.resultsTextView.text = "nichts gefunden"
         } else {
           if let resultValue = Int(results[0].identifier) {
+            print("Result ist: \(results[0].debugDescription)")
+            print("Zahl ist: \(resultValue)")
             let value = resultValue > 9 ? 0 : resultValue
             completion(value)
           }

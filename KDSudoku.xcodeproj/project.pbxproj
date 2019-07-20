@@ -20,6 +20,7 @@
 		613B543522AC0DE000177176 /* Collection+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543222AC0DE000177176 /* Collection+Extensions.swift */; };
 		613B543622AC0DE000177176 /* SCNVector3+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543322AC0DE000177176 /* SCNVector3+Extensions.swift */; };
 		613B543822AC0E0D00177176 /* ARHitTestResult+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543722AC0E0D00177176 /* ARHitTestResult+Extensions.swift */; };
+		6197FD1222DE5B7C00672072 /* keras_mnist_cnn.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6197FD1122DE5B7B00672072 /* keras_mnist_cnn.mlmodel */; };
 		61EC9E9F22AD7C6200EF40D5 /* PlaneRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 		613B543222AC0DE000177176 /* Collection+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+Extensions.swift"; sourceTree = "<group>"; };
 		613B543322AC0DE000177176 /* SCNVector3+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SCNVector3+Extensions.swift"; sourceTree = "<group>"; };
 		613B543722AC0E0D00177176 /* ARHitTestResult+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ARHitTestResult+Extensions.swift"; sourceTree = "<group>"; };
+		6197FD1122DE5B7B00672072 /* keras_mnist_cnn.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = keras_mnist_cnn.mlmodel; sourceTree = "<group>"; };
 		61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaneRectangle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -74,6 +76,7 @@
 			children = (
 				613B543022AC0DB000177176 /* Extensions + Utilities */,
 				613491B1224021D800D4BF57 /* numbers.mlmodel */,
+				6197FD1122DE5B7B00672072 /* keras_mnist_cnn.mlmodel */,
 				6134919D22401E0500D4BF57 /* AppDelegate.swift */,
 				6134919F22401E0500D4BF57 /* ViewController.swift */,
 				61337EB622B0217700A34C77 /* SurfaceNode.swift */,
@@ -180,6 +183,7 @@
 				613B543822AC0E0D00177176 /* ARHitTestResult+Extensions.swift in Sources */,
 				613B542D22AC0CEC00177176 /* RectangleNode.swift in Sources */,
 				613B543522AC0DE000177176 /* Collection+Extensions.swift in Sources */,
+				6197FD1222DE5B7C00672072 /* keras_mnist_cnn.mlmodel in Sources */,
 				6134919E22401E0500D4BF57 /* AppDelegate.swift in Sources */,
 				613491B2224021D800D4BF57 /* numbers.mlmodel in Sources */,
 			);
