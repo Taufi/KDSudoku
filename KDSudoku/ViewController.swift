@@ -107,8 +107,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       let handler = VNImageRequestHandler(ciImage: ciImage, orientation: orientation)
       do {
         
-//        let model = numbers()
-        let model = keras_mnist_cnn()
+        let model = numbers()
+//        let model = keras_mnist_cnn()
+//        let model = MNISTClassifier()
         let visionModel = try VNCoreMLModel(for: model.model)
         let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
           self?.processObservations(for: request, completion: completion, error: error)
@@ -195,10 +196,24 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     for i in 0..<9 {
       for j in 0..<9 {
         let summand = i < 4 ? 0 : 1
-        let crop = CGRect(x: originX * factor  + ( CGFloat(j) * width / 9.2 ) * factor + 5, y: originY * factor + ( CGFloat(i) * height / 9 ) * factor - CGFloat(summand) * 10  , width: width / 8 * factor, height: height * factor / 8)
+        var crop = CGRect(x: originX * factor  + ( CGFloat(j) * width / 9.2 ) * factor + 5, y: originY * factor + ( CGFloat(i) * height / 9 ) * factor - CGFloat(summand) * 10  , width: width / 8 * factor, height: height * factor / 8)
+        
+//        crop = CGRect(
+//          x: crop.origin.x + crop.width * 0.2,
+//          y: crop.origin.y + crop.height * 0.2,
+//          width: crop.width * 0.7,
+//          height: crop.height * 0.7)
+
+        
         if let cropImage = cg.cropping(to: crop) {
           
-          let uiImage = UIImage(cgImage: cropImage)
+          let bigImage = noir(image: UIImage(cgImage: cropImage))
+          let targetSize = CGSize(width: 28.0, height: 28.0)
+          let uiImage = resizeImage(image: bigImage, targetSize: targetSize)
+          
+          
+          
+          print("---- TW ------>\(uiImage.debugDescription)")
         
           
           //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
@@ -279,6 +294,43 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     sceneView.scene.rootNode.addChildNode(rectangleNode)
     
+  }
+  
+  func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+    let size = image.size
+    
+    let widthRatio  = targetSize.width  / size.width
+    let heightRatio = targetSize.height / size.height
+    
+    // Figure out what our orientation is, and use that to form the rectangle
+    var newSize: CGSize
+    if(widthRatio > heightRatio) {
+      newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
+    } else {
+      newSize = CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
+    }
+    
+    // This is the rect that we've calculated out and this is what is actually used below
+    let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
+    
+    // Actually do the resizing to the rect using the ImageContext stuff
+    UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+    image.draw(in: rect)
+    let newImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    
+    return newImage!
+  }
+  
+  func noir(image: UIImage) -> UIImage {
+    let context = CIContext(options: nil)
+    
+    let currentFilter = CIFilter(name: "CIPhotoEffectNoir")
+    currentFilter!.setValue(CIImage(image: image), forKey: kCIInputImageKey)
+    let output = currentFilter!.outputImage
+    let cgimg = context.createCGImage(output!,from: output!.extent)
+    let processedImage = UIImage(cgImage: cgimg!)
+    return processedImage
   }
   
 //  func addBox(x: Float = 0, y: Float = 0, z: Float = -0.2) {
@@ -594,4 +646,5 @@ extension UIImage {
     }
     return self
   }
+  
 }
