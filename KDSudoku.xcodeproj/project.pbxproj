@@ -22,6 +22,7 @@
 		613B543622AC0DE000177176 /* SCNVector3+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543322AC0DE000177176 /* SCNVector3+Extensions.swift */; };
 		613B543822AC0E0D00177176 /* ARHitTestResult+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543722AC0E0D00177176 /* ARHitTestResult+Extensions.swift */; };
 		6197FD1222DE5B7C00672072 /* keras_mnist_cnn.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 6197FD1122DE5B7B00672072 /* keras_mnist_cnn.mlmodel */; };
+		61BF945322E78F2300EE634E /* CcLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61BF945222E78F2200EE634E /* CcLabel.swift */; };
 		61EC9E9F22AD7C6200EF40D5 /* PlaneRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */; };
 /* End PBXBuildFile section */
 
@@ -43,6 +44,7 @@
 		613B543322AC0DE000177176 /* SCNVector3+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SCNVector3+Extensions.swift"; sourceTree = "<group>"; };
 		613B543722AC0E0D00177176 /* ARHitTestResult+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ARHitTestResult+Extensions.swift"; sourceTree = "<group>"; };
 		6197FD1122DE5B7B00672072 /* keras_mnist_cnn.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = keras_mnist_cnn.mlmodel; sourceTree = "<group>"; };
+		61BF945222E78F2200EE634E /* CcLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CcLabel.swift; sourceTree = "<group>"; };
 		61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaneRectangle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -81,6 +83,7 @@
 				6197FD1122DE5B7B00672072 /* keras_mnist_cnn.mlmodel */,
 				6134919D22401E0500D4BF57 /* AppDelegate.swift */,
 				6134919F22401E0500D4BF57 /* ViewController.swift */,
+				61BF945222E78F2200EE634E /* CcLabel.swift */,
 				612D8D2122E39F6800F419AF /* MNISTClassifier.mlmodel */,
 				61337EB622B0217700A34C77 /* SurfaceNode.swift */,
 				61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */,
@@ -177,6 +180,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				61BF945322E78F2300EE634E /* CcLabel.swift in Sources */,
 				613B543422AC0DE000177176 /* UIView+Extensions.swift in Sources */,
 				613B543622AC0DE000177176 /* SCNVector3+Extensions.swift in Sources */,
 				61337EB722B0217700A34C77 /* SurfaceNode.swift in Sources */,

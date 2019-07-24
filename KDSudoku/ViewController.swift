@@ -12,6 +12,13 @@ import Vision
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
+  
+  fileprivate struct PixelData {
+    var a: UInt8
+    var r: UInt8
+    var g: UInt8
+    var b: UInt8
+  }
 
   @IBOutlet var sceneView: ARSCNView!
   @IBOutlet var resultsView: UIView!
@@ -185,48 +192,31 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     let factor = CGFloat(cg.width) / image.size.width
     
-//    let rectCrop = CGRect(x: originX * factor, y: originY * factor, width: width * factor * factor, height: height * factor)
-//    if let suIm = cg.cropping(to: rectCrop) {
-//      let uiImage:UIImage = UIImage.init(cgImage: suIm)
-//      print("(\(uiImage.size.height),\(uiImage.size.width))")
-//    }
-    
     //KD 190610 zerlegt das Sudoku-Rechteck in die einzelnen Ziffernfelder und versucht die Ziffern zu
     //          entschlüsseln
     for i in 0..<9 {
       for j in 0..<9 {
         let summand = i < 4 ? 0 : 1
-        var crop = CGRect(x: originX * factor  + ( CGFloat(j) * width / 9.2 ) * factor + 5, y: originY * factor + ( CGFloat(i) * height / 9 ) * factor - CGFloat(summand) * 10  , width: width / 8 * factor, height: height * factor / 8)
+        let crop = CGRect(x: originX * factor  + ( CGFloat(j) * width / 9.2 ) * factor + 5, y: originY * factor + ( CGFloat(i) * height / 9 ) * factor - CGFloat(summand) * 10  , width: width / 8 * factor, height: height * factor / 8)
         
-//        crop = CGRect(
-//          x: crop.origin.x + crop.width * 0.2,
-//          y: crop.origin.y + crop.height * 0.2,
-//          width: crop.width * 0.7,
-//          height: crop.height * 0.7)
 
-        
-        if let cropImage = cg.cropping(to: crop) {
+        guard let cropImage = cg.cropping(to: crop) else { return }
+        guard let uiImage = getInnerComponent(from: UIImage(cgImage: cropImage)) else {
+          return
           
-          let bigImage = noir(image: UIImage(cgImage: cropImage))
-          let targetSize = CGSize(width: 28.0, height: 28.0)
-          let uiImage = resizeImage(image: bigImage, targetSize: targetSize)
-          
-          
-          
-          print("---- TW ------>\(uiImage.debugDescription)")
-        
-          
-          //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
-          // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
-          //KD 190610 Entschlüsseln der Ziffern
-          self.classify(image: uiImage) { (value) in
-            self.sudokuMatrix[i][j] = value
-          }
-    
-          //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
-          // wenn ich sie auf dem Device laufen ließ. Simulator und Photo Library ging.
-           self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
         }
+        
+        //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
+        // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
+        //KD 190610 Entschlüsseln der Ziffern
+        self.classify(image: uiImage) { (value) in
+          self.sudokuMatrix[i][j] = value
+        }
+  
+        //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
+        // wenn ich sie auf dem Device laufen ließ. Simulator und Photo Library ging.
+        self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
+        
       }
     }
     
@@ -296,6 +286,89 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
   }
   
+  func getInnerComponent(from inputImage: UIImage) -> UIImage? {
+    
+    let bigImage = createMonoImage(image: inputImage)
+    let targetSize = CGSize(width: 28.0, height: 28.0)
+    let uiImage = resizeImage(image: bigImage, targetSize: targetSize)
+    
+    let labeledData = labelImage(image: uiImage)
+    let matrix = labeledData.labelMatrix
+  
+    
+    var pixels = [PixelData]()
+    
+    let black = PixelData(a: 255, r: 0, g: 0, b: 0)
+    let white = PixelData(a: 255, r: 255, g: 255, b: 255)
+    
+    let middle = matrix.count / 2
+    
+    let labelNr = getLabelNumber(fromCenter: middle, in: matrix)
+    
+    if labelNr != -1 {
+      for i in 0..<matrix.count {
+        for j in 0..<matrix.count {
+          pixels.append( matrix[i][j] == labelNr ? black : white)
+        }
+      }
+    }
+    
+    
+    
+    let outputImage = imageFromARGB32Bitmap(pixels: pixels, width: matrix.count, height: matrix.count)
+    return outputImage
+    /////
+    
+  }
+  
+  //KD 190721 von hier: https://stackoverflow.com/questions/30958427/pixel-array-to-uiimage-in-swift
+  fileprivate func imageFromARGB32Bitmap(pixels: [PixelData], width: Int, height: Int) -> UIImage? {
+    guard width > 0 && height > 0 else { return nil }
+    guard pixels.count == width * height else { return nil }
+    
+    let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
+    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue)
+    let bitsPerComponent = 8
+    let bitsPerPixel = 32
+    
+    var data = pixels // Copy to mutable []
+    guard let providerRef = CGDataProvider(data: NSData(bytes: &data,
+                                                        length: data.count * MemoryLayout<PixelData>.size)
+      )
+      else { return nil }
+    
+    guard let cgim = CGImage(
+      width: width,
+      height: height,
+      bitsPerComponent: bitsPerComponent,
+      bitsPerPixel: bitsPerPixel,
+      bytesPerRow: width * MemoryLayout<PixelData>.size,
+      space: rgbColorSpace,
+      bitmapInfo: bitmapInfo,
+      provider: providerRef,
+      decode: nil,
+      shouldInterpolate: true,
+      intent: .defaultIntent
+      )
+      else { return nil }
+    
+    return UIImage(cgImage: cgim)
+  }
+  
+  func getLabelNumber(fromCenter middle: Int, in matrix: [[Int]]) -> Int {
+    for i in middle - 10 ..< middle + 10 {
+      if matrix[i][i] != -1 {
+        return matrix[i][i]
+      }
+    }
+    return -1
+  }
+  
+  func labelImage(image: UIImage) -> LabelledData {
+    let ccLabel = CcLabel()
+    return ccLabel.labelImageFast(image: image, calculateBoundingBoxes: false)
+  }
+  
   func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
     let size = image.size
     
@@ -322,25 +395,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     return newImage!
   }
   
-  func noir(image: UIImage) -> UIImage {
-    let context = CIContext(options: nil)
-    
-    let currentFilter = CIFilter(name: "CIPhotoEffectNoir")
-    currentFilter!.setValue(CIImage(image: image), forKey: kCIInputImageKey)
-    let output = currentFilter!.outputImage
-    let cgimg = context.createCGImage(output!,from: output!.extent)
-    let processedImage = UIImage(cgImage: cgimg!)
-    return processedImage
+  func createMonoImage(image:UIImage) -> UIImage {
+    let filter = CIFilter(name: "CIPhotoEffectMono")
+    let ciCtx = CIContext(options: nil)
+    filter!.setValue(CIImage(image: image), forKey: "inputImage")
+    let outputImage = filter!.outputImage
+    let cgimg = ciCtx.createCGImage(outputImage!, from: (outputImage?.extent)!)
+    return UIImage(cgImage: cgimg!)
   }
-  
-//  func addBox(x: Float = 0, y: Float = 0, z: Float = -0.2) {
-//    let box = SCNBox(width: 0.05, height: 0.05, length: 0.05, chamferRadius: 0)
-//    let boxNode = SCNNode()
-//    boxNode.geometry = box
-//    boxNode.position = SCNVector3(x, y, z)
-//
-//    sceneView.scene.rootNode.addChildNode(boxNode)
-//  }
 
 
   //KD 190610 gebe das Rect des auf dem Bildschirm sichtbaren Teil des Sudoku-Images zurück
