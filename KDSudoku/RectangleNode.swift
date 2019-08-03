@@ -26,7 +26,7 @@ class RectangleNode: SCNNode {
         super.init()
         
         // Debug
-        print("position: \(position) width: \(width) (\(width * meters2inches)\") height: \(height) (\(height * meters2inches)\")")
+        //print("position: \(position) width: \(width) (\(width * meters2inches)\") height: \(height) (\(height * meters2inches)\")")
         
         // Create the 3D plane geometry with the dimensions calculated from corners
         //Kd 190615 die Sudoku-Überdeckungen waren etwas schmal. Daher hier um 30% vergrößert

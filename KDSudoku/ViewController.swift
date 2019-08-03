@@ -138,8 +138,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           self.resultsTextView.text = "nichts gefunden"
         } else {
           if let resultValue = Int(results[0].identifier) {
-            print("Result ist: \(results[0].debugDescription)")
-            print("Zahl ist: \(resultValue)")
+//            print("Result ist: \(results[0].debugDescription)")
+//            print("Zahl ist: \(resultValue)")
             let value = resultValue > 9 ? 0 : resultValue
             completion(value)
           }
@@ -200,10 +200,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let crop = CGRect(x: originX * factor  + ( CGFloat(j) * width / 9.2 ) * factor + 5, y: originY * factor + ( CGFloat(i) * height / 9 ) * factor - CGFloat(summand) * 10  , width: width / 8 * factor, height: height * factor / 8)
         
 
-        guard let cropImage = cg.cropping(to: crop) else { return }
-        guard let uiImage = getInnerComponent(from: UIImage(cgImage: cropImage)) else {
+        guard let cropImage = cg.cropping(to: crop) else {
+          print("----------> crop image error")
+          detectingRectangles = false
           return
-          
+        }
+        guard let uiImage = getInnerComponent(from: UIImage(cgImage: cropImage)) else {
+          print("----------> inner component error")
+          detectingRectangles = false
+          return
         }
         
         //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
@@ -234,10 +239,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //          bestehen. Die filtere ich hier raus. Und Sudokus, die weniger als 16 Ziffern haben.
         var solutionCorrect = true
         if sudokoArray.count < 16 {
+          print("----------> less than 16 error")
           solutionCorrect = false
         } else {
           for i in 1..<9 {
             if (sudokoArray.filter{ $0 == i }.count > 9) {
+               print("----------> too much doubles error")
               solutionCorrect = false
               continue
             }
@@ -273,6 +280,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     // Convert to 3D coordinates
     guard let planeRectangle = PlaneRectangle(for: observedRect, in: sceneView) else {
+       print("----------> no plane error")
       print("No plane for this rectangle")
       return
     }
@@ -281,6 +289,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     if let rectNode = rectangleNode.childNodes.first {
       rectNode.geometry?.firstMaterial?.diffuse.contents = drawSudoku()
+    } else {
+       print("----------> rect node error")
     }
     sceneView.scene.rootNode.addChildNode(rectangleNode)
     
@@ -289,9 +299,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   func getInnerComponent(from inputImage: UIImage) -> UIImage? {
     
     let bigImage = createMonoImage(image: inputImage)
-    let targetSize = CGSize(width: 28.0, height: 28.0)
+    let targetSize = CGSize(width: 56.0, height: 56.0)
     let uiImage = resizeImage(image: bigImage, targetSize: targetSize)
-    
+//    print("-------> Breite: \(uiImage.size.width)")
+//    print("-------> Höhe  : \(uiImage.size.height)")
+//    if uiImage.size.height != uiImage.size.width {
+//      return nil
+//    }
     let labeledData = labelImage(image: uiImage)
     let matrix = labeledData.labelMatrix
   
@@ -307,15 +321,28 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     if labelNr != -1 {
       for i in 0..<matrix.count {
-        for j in 0..<matrix.count {
+        for j in 0..<matrix[0].count {
           pixels.append( matrix[i][j] == labelNr ? black : white)
         }
       }
     }
+
     
+    var outputImage = imageFromARGB32Bitmap(pixels: pixels, width: matrix.count, height: matrix.count)
+    if outputImage == nil {
+      //print("----------> make white output image")
+      pixels = [PixelData]()
+      for _ in 0..<matrix.count {
+        for _ in 0..<matrix.count {
+          pixels.append(white)
+        }
+      }
+      outputImage = imageFromARGB32Bitmap(pixels: pixels, width: matrix.count, height: matrix.count)
+    }
     
-    
-    let outputImage = imageFromARGB32Bitmap(pixels: pixels, width: matrix.count, height: matrix.count)
+//    if let oImage = outputImage {
+//      outputImage = resizeImage(image: oImage, targetSize: CGSize(width: 28.0, height: 28.0))
+//    }
     return outputImage
     /////
     
@@ -356,9 +383,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   }
   
   func getLabelNumber(fromCenter middle: Int, in matrix: [[Int]]) -> Int {
-    for i in middle - 10 ..< middle + 10 {
-      if matrix[i][i] != -1 {
-        return matrix[i][i]
+    for i in 0 ..< 15 {
+//      print("(\(middle + i),\(middle + i))")
+//      print("(\(middle - i),\(middle - i))")
+//      print("(\(middle + i),\(middle - i))")
+//      print("(\(middle - i),\(middle + i))")
+      if matrix[middle + i][middle + i] != -1 {
+        return matrix[middle + i][middle + i]
+      }
+      if matrix[middle - i][middle - i] != -1 {
+        return matrix[middle - i][middle - i]
+      }
+      if matrix[middle + i][middle - i] != -1 {
+        return matrix[middle + i][middle - i]
+      }
+      if matrix[middle - i][middle + i] != -1 {
+        return matrix[middle - i][middle + i]
       }
     }
     return -1
@@ -501,6 +541,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     let rectDetectRequest = VNDetectRectanglesRequest(completionHandler: self.handleDetectedRectangles)
+    print(sudokuMatrix)
     
     // Customize & configure the request to detect only certain rectangles.
     rectDetectRequest.maximumObservations = 8 // Vision currently supports up to 16.
@@ -634,6 +675,7 @@ extension ViewController: ARSessionDelegate{
         self.preparePathLayer(originalImage: rotatedImage  )
       }
       detectRectangles(uiImage: rotatedImage)
+      print("--------------------------------------------------------")
     }
   }
   
