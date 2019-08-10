@@ -13,17 +13,26 @@ import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
   
-  fileprivate struct PixelData {
+  fileprivate struct PixelData: Equatable {
     var a: UInt8
     var r: UInt8
     var g: UInt8
     var b: UInt8
+    
+    static func == (lhs: PixelData, rhs: PixelData) -> Bool {
+      return lhs.a == rhs.a && lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b
+    }
   }
 
   @IBOutlet var sceneView: ARSCNView!
   @IBOutlet var resultsView: UIView!
   @IBOutlet var resultsTextView: UITextView!
   @IBOutlet var resultsConstraint: NSLayoutConstraint!
+  
+  var leftMargin = 0
+  var topMargin = 0
+  var rightMargin = 0
+  var bottomMargin = 0
   
   var sudokuImage: UIImage?
   var firstTime = true
@@ -205,6 +214,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           detectingRectangles = false
           return
         }
+        self.saveImage(image: UIImage(cgImage: cropImage), imageName: "kd_number\(i)\(j).png")
         guard let uiImage = getInnerComponent(from: UIImage(cgImage: cropImage)) else {
           print("----------> inner component error")
           detectingRectangles = false
@@ -325,6 +335,23 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           pixels.append( matrix[i][j] == labelNr ? black : white)
         }
       }
+      
+      leftMargin = 0
+      topMargin = 0
+      bottomMargin = 0
+      rightMargin = 0
+      
+      for i in 0..<matrix.count {
+        for j in 0..<matrix[0].count {
+          if pixels[i+j] == black {
+            if topMargin == 0 { topMargin = i }
+            bottomMargin = i
+            if leftMargin < j { leftMargin = j }
+            if rightMargin > j { rightMargin = j }
+          }
+        }
+      }
+      
     }
 
     
@@ -650,6 +677,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           ctx.cgContext.stroke(CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57), width: 57, height: 57))
         
           let string = sudokuMatrix[col][row] == 0 ? "" : String(sudokuMatrix[col][row])
+          if (sudokuMatrix[col][row] != 0) {
+            print("-------> Zahl: \(sudokuMatrix[col][row])")
+            print("Left margin: \(leftMargin)")
+            print("Right margin: \(rightMargin)")
+            print("Top margin: \(topMargin)")
+            print("Bottom margin: \(bottomMargin)")
+            print("-----------------------------")
+            
+          }
           let attributedString = NSAttributedString(string: string, attributes: attrs)
           attributedString.draw(with: CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57 + 10), width: 57, height: 57), options: .usesLineFragmentOrigin, context: nil)
           
