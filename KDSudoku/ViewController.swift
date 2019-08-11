@@ -12,27 +12,11 @@ import Vision
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
-  
-  fileprivate struct PixelData: Equatable {
-    var a: UInt8
-    var r: UInt8
-    var g: UInt8
-    var b: UInt8
-    
-    static func == (lhs: PixelData, rhs: PixelData) -> Bool {
-      return lhs.a == rhs.a && lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b
-    }
-  }
 
   @IBOutlet var sceneView: ARSCNView!
   @IBOutlet var resultsView: UIView!
   @IBOutlet var resultsTextView: UITextView!
   @IBOutlet var resultsConstraint: NSLayoutConstraint!
-  
-  var leftMargin = 0
-  var topMargin = 0
-  var rightMargin = 0
-  var bottomMargin = 0
   
   var sudokuImage: UIImage?
   var firstTime = true
@@ -126,6 +110,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let model = numbers()
 //        let model = keras_mnist_cnn()
 //        let model = MNISTClassifier()
+        //TODO viertes Modell?
         let visionModel = try VNCoreMLModel(for: model.model)
         let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
           self?.processObservations(for: request, completion: completion, error: error)
@@ -147,12 +132,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           self.resultsTextView.text = "nichts gefunden"
         } else {
           if let resultValue = Int(results[0].identifier) {
-//            print("Result ist: \(results[0].debugDescription)")
-//            print("Zahl ist: \(resultValue)")
             let value = resultValue > 9 ? 0 : resultValue
             completion(value)
           }
-
+          //TODO - leeres Feld -> hier muss ich nichts machen, da die Sudoku-Matrix standardmäßig eine 0 enthält
         }
       } else if let error = error {
         self.resultsTextView.text = "Fehler: \(error.localizedDescription)"
@@ -215,7 +198,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           return
         }
         self.saveImage(image: UIImage(cgImage: cropImage), imageName: "kd_number\(i)\(j).png")
-        guard let uiImage = getInnerComponent(from: UIImage(cgImage: cropImage)) else {
+        
+        guard let preparedImage = prepareImage(image: UIImage(cgImage: cropImage)) else {
           print("----------> inner component error")
           detectingRectangles = false
           return
@@ -224,13 +208,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //KD 190430 - das hatte ich vorher auf "DispatchQueue.global(qos: . userInitiated).async"
         // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
         //KD 190610 Entschlüsseln der Ziffern
-        self.classify(image: uiImage) { (value) in
+        self.classify(image: preparedImage) { (value) in
           self.sudokuMatrix[i][j] = value
         }
   
         //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
         // wenn ich sie auf dem Device laufen ließ. Simulator und Photo Library ging.
-        self.saveImage(image: uiImage, imageName: "number\(i)\(j).png")
+        self.saveImage(image: preparedImage, imageName: "number\(i)\(j).png")
         
       }
     }
@@ -263,7 +247,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         //KD 190610 Liegt ein vernünftiges Ergebnis vor? Falls weniger als 15 Ziffern, dann nicht.
         if solutionCorrect  {
-          print(self.sudokuMatrix)
           var sudokuPrint = ""
           for i in 0..<9 {
             for j in 0..<9 {
@@ -304,171 +287,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     sceneView.scene.rootNode.addChildNode(rectangleNode)
     
-  }
-  
-  func getInnerComponent(from inputImage: UIImage) -> UIImage? {
-    
-    let bigImage = createMonoImage(image: inputImage)
-    let targetSize = CGSize(width: 56.0, height: 56.0)
-    let uiImage = resizeImage(image: bigImage, targetSize: targetSize)
-//    print("-------> Breite: \(uiImage.size.width)")
-//    print("-------> Höhe  : \(uiImage.size.height)")
-//    if uiImage.size.height != uiImage.size.width {
-//      return nil
-//    }
-    let labeledData = labelImage(image: uiImage)
-    let matrix = labeledData.labelMatrix
-  
-    
-    var pixels = [PixelData]()
-    
-    let black = PixelData(a: 255, r: 0, g: 0, b: 0)
-    let white = PixelData(a: 255, r: 255, g: 255, b: 255)
-    
-    let middle = matrix.count / 2
-    
-    let labelNr = getLabelNumber(fromCenter: middle, in: matrix)
-    
-    if labelNr != -1 {
-      for i in 0..<matrix.count {
-        for j in 0..<matrix[0].count {
-          pixels.append( matrix[i][j] == labelNr ? black : white)
-        }
-      }
-      
-      leftMargin = 0
-      topMargin = 0
-      bottomMargin = 0
-      rightMargin = 0
-      
-      for i in 0..<matrix.count {
-        for j in 0..<matrix[0].count {
-          if pixels[i+j] == black {
-            if topMargin == 0 { topMargin = i }
-            bottomMargin = i
-            if leftMargin < j { leftMargin = j }
-            if rightMargin > j { rightMargin = j }
-          }
-        }
-      }
-      
-    }
-
-    
-    var outputImage = imageFromARGB32Bitmap(pixels: pixels, width: matrix.count, height: matrix.count)
-    if outputImage == nil {
-      //print("----------> make white output image")
-      pixels = [PixelData]()
-      for _ in 0..<matrix.count {
-        for _ in 0..<matrix.count {
-          pixels.append(white)
-        }
-      }
-      outputImage = imageFromARGB32Bitmap(pixels: pixels, width: matrix.count, height: matrix.count)
-    }
-    
-//    if let oImage = outputImage {
-//      outputImage = resizeImage(image: oImage, targetSize: CGSize(width: 28.0, height: 28.0))
-//    }
-    return outputImage
-    /////
-    
-  }
-  
-  //KD 190721 von hier: https://stackoverflow.com/questions/30958427/pixel-array-to-uiimage-in-swift
-  fileprivate func imageFromARGB32Bitmap(pixels: [PixelData], width: Int, height: Int) -> UIImage? {
-    guard width > 0 && height > 0 else { return nil }
-    guard pixels.count == width * height else { return nil }
-    
-    let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
-    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue)
-    let bitsPerComponent = 8
-    let bitsPerPixel = 32
-    
-    var data = pixels // Copy to mutable []
-    guard let providerRef = CGDataProvider(data: NSData(bytes: &data,
-                                                        length: data.count * MemoryLayout<PixelData>.size)
-      )
-      else { return nil }
-    
-    guard let cgim = CGImage(
-      width: width,
-      height: height,
-      bitsPerComponent: bitsPerComponent,
-      bitsPerPixel: bitsPerPixel,
-      bytesPerRow: width * MemoryLayout<PixelData>.size,
-      space: rgbColorSpace,
-      bitmapInfo: bitmapInfo,
-      provider: providerRef,
-      decode: nil,
-      shouldInterpolate: true,
-      intent: .defaultIntent
-      )
-      else { return nil }
-    
-    return UIImage(cgImage: cgim)
-  }
-  
-  func getLabelNumber(fromCenter middle: Int, in matrix: [[Int]]) -> Int {
-    for i in 0 ..< 15 {
-//      print("(\(middle + i),\(middle + i))")
-//      print("(\(middle - i),\(middle - i))")
-//      print("(\(middle + i),\(middle - i))")
-//      print("(\(middle - i),\(middle + i))")
-      if matrix[middle + i][middle + i] != -1 {
-        return matrix[middle + i][middle + i]
-      }
-      if matrix[middle - i][middle - i] != -1 {
-        return matrix[middle - i][middle - i]
-      }
-      if matrix[middle + i][middle - i] != -1 {
-        return matrix[middle + i][middle - i]
-      }
-      if matrix[middle - i][middle + i] != -1 {
-        return matrix[middle - i][middle + i]
-      }
-    }
-    return -1
-  }
-  
-  func labelImage(image: UIImage) -> LabelledData {
-    let ccLabel = CcLabel()
-    return ccLabel.labelImageFast(image: image, calculateBoundingBoxes: false)
-  }
-  
-  func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
-    let size = image.size
-    
-    let widthRatio  = targetSize.width  / size.width
-    let heightRatio = targetSize.height / size.height
-    
-    // Figure out what our orientation is, and use that to form the rectangle
-    var newSize: CGSize
-    if(widthRatio > heightRatio) {
-      newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
-    } else {
-      newSize = CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
-    }
-    
-    // This is the rect that we've calculated out and this is what is actually used below
-    let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
-    
-    // Actually do the resizing to the rect using the ImageContext stuff
-    UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-    image.draw(in: rect)
-    let newImage = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-    
-    return newImage!
-  }
-  
-  func createMonoImage(image:UIImage) -> UIImage {
-    let filter = CIFilter(name: "CIPhotoEffectMono")
-    let ciCtx = CIContext(options: nil)
-    filter!.setValue(CIImage(image: image), forKey: "inputImage")
-    let outputImage = filter!.outputImage
-    let cgimg = ciCtx.createCGImage(outputImage!, from: (outputImage?.extent)!)
-    return UIImage(cgImage: cgimg!)
   }
 
 
@@ -568,7 +386,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     let rectDetectRequest = VNDetectRectanglesRequest(completionHandler: self.handleDetectedRectangles)
-    print(sudokuMatrix)
     
     // Customize & configure the request to detect only certain rectangles.
     rectDetectRequest.maximumObservations = 8 // Vision currently supports up to 16.
@@ -677,15 +494,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           ctx.cgContext.stroke(CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57), width: 57, height: 57))
         
           let string = sudokuMatrix[col][row] == 0 ? "" : String(sudokuMatrix[col][row])
-          if (sudokuMatrix[col][row] != 0) {
-            print("-------> Zahl: \(sudokuMatrix[col][row])")
-            print("Left margin: \(leftMargin)")
-            print("Right margin: \(rightMargin)")
-            print("Top margin: \(topMargin)")
-            print("Bottom margin: \(bottomMargin)")
-            print("-----------------------------")
-            
-          }
+         
           let attributedString = NSAttributedString(string: string, attributes: attrs)
           attributedString.draw(with: CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57 + 10), width: 57, height: 57), options: .usesLineFragmentOrigin, context: nil)
           
@@ -711,7 +520,6 @@ extension ViewController: ARSessionDelegate{
         self.preparePathLayer(originalImage: rotatedImage  )
       }
       detectRectangles(uiImage: rotatedImage)
-      print("--------------------------------------------------------")
     }
   }
   
