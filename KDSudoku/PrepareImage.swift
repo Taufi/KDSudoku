@@ -25,11 +25,12 @@ fileprivate struct PixelData: Equatable {
 func prepareImage(image: UIImage) -> UIImage? {
   let imageWidth = 56.0
   let monoImage = createMonoImage(image: image)
-  let resizedImage = resizeSqureImage(image: monoImage, targetSize: imageWidth)
+  let resizedImage = resizeSquareImage(image: monoImage, targetSize: imageWidth)
   guard let centeredImage = getCenteredImage(from: resizedImage) else { return nil }
-//  return centeredImage
-  let scaledImage = resizeSqureImage(image: centeredImage, targetSize: imageWidth * scaleFactor)
+  let scaledImage = resizeSquareImage(image: centeredImage, targetSize: imageWidth * scaleFactor)
    return scaledImage
+
+//KD 190814 das macht die Erkennung seltsamerweise schlechter
 //  guard let cg = scaledImage.cgImage else {
 //    print("----------> cgImage image error")
 //    return nil
@@ -42,7 +43,7 @@ func prepareImage(image: UIImage) -> UIImage? {
 //    print("----------> crop image error")
 //    return nil
 //  }
-//  let reScaledImage = resizeSqureImage(image: UIImage(cgImage: cropImage), targetSize: 28.0)
+//  let reScaledImage = resizeSquareImage(image: UIImage(cgImage: cropImage), targetSize: 28.0)
 //  return reScaledImage
 //    return UIImage(cgImage: cropImage)
 }
@@ -101,33 +102,7 @@ func createMonoImage(image:UIImage) -> UIImage {
   return UIImage(cgImage: cgimg!)
 }
 
-func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
-  let size = image.size
-  
-  let widthRatio  = targetSize.width  / size.width
-  let heightRatio = targetSize.height / size.height
-  
-  // Figure out what our orientation is, and use that to form the rectangle
-  var newSize: CGSize
-  if(widthRatio > heightRatio) {
-    newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
-  } else {
-    newSize = CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
-  }
-  
-  // This is the rect that we've calculated out and this is what is actually used below
-  let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
-  
-  // Actually do the resizing to the rect using the ImageContext stuff
-  UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-  image.draw(in: rect)
-  let newImage = UIGraphicsGetImageFromCurrentImageContext()
-  UIGraphicsEndImageContext()
-  
-  return newImage!
-}
-
-func resizeSqureImage(image: UIImage, targetSize: Double) -> UIImage{
+func resizeSquareImage(image: UIImage, targetSize: Double) -> UIImage{
   let newSize = CGSize(width: targetSize, height: targetSize)
   let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
   // Actually do the resizing to the rect using the ImageContext stuff
