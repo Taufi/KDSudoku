@@ -9,6 +9,8 @@
 import Foundation
 import UIKit
 
+var scaleFactor = 1.0 //KD 190811 TODO als file-Variable: hmmmmm?!?!?!
+
 fileprivate struct PixelData: Equatable {
   var a: UInt8
   var r: UInt8
@@ -21,12 +23,28 @@ fileprivate struct PixelData: Equatable {
 }
 
 func prepareImage(image: UIImage) -> UIImage? {
-  let targetSize = CGSize(width: 35.0, height: 35.0) //KD ACHTUNG: Größe noch eruieren
-  let resizedImage = resizeImage(image: image, targetSize: targetSize)
-  let monoImage = createMonoImage(image: resizedImage)
-  let centeredImage = getCenteredImage(from: monoImage)
-  
-  return centeredImage
+  let imageWidth = 56.0
+  let monoImage = createMonoImage(image: image)
+  let resizedImage = resizeSqureImage(image: monoImage, targetSize: imageWidth)
+  guard let centeredImage = getCenteredImage(from: resizedImage) else { return nil }
+//  return centeredImage
+  let scaledImage = resizeSqureImage(image: centeredImage, targetSize: imageWidth * scaleFactor)
+   return scaledImage
+//  guard let cg = scaledImage.cgImage else {
+//    print("----------> cgImage image error")
+//    return nil
+//
+//  }
+//  let offset = imageWidth * (scaleFactor - 1)
+//  let width = Double(scaledImage.size.width) - offset*2
+//  let crop = CGRect(x: offset, y: offset, width: width, height: width)
+//  guard let cropImage = cg.cropping(to: crop) else {
+//    print("----------> crop image error")
+//    return nil
+//  }
+//  let reScaledImage = resizeSqureImage(image: UIImage(cgImage: cropImage), targetSize: 28.0)
+//  return reScaledImage
+//    return UIImage(cgImage: cropImage)
 }
 
 func getCenteredImage(from inputImage: UIImage) -> UIImage? {
@@ -68,6 +86,9 @@ func getCenteredImage(from inputImage: UIImage) -> UIImage? {
   }
   
   let outputImage = imageFromARGB32Bitmap(pixels: pixels, width: matrixSize, height: matrixSize)
+  if outputImage == nil {
+    print("-------> imageFromARGB32Bitmap error")
+  }
   return outputImage  
 }
 
@@ -106,8 +127,21 @@ func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
   return newImage!
 }
 
+func resizeSqureImage(image: UIImage, targetSize: Double) -> UIImage{
+  let newSize = CGSize(width: targetSize, height: targetSize)
+  let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
+  // Actually do the resizing to the rect using the ImageContext stuff
+  UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+  image.draw(in: rect)
+  let newImage = UIGraphicsGetImageFromCurrentImageContext()
+  UIGraphicsEndImageContext()
+  
+  return newImage!
+}
+
 func getLabelNumber(fromCenter middle: Int, in matrix: [[Int]]) -> Int {
-  for i in 0 ..< 10 {
+  let limit = matrix.count / 5
+  for i in 0 ..< limit {
     if matrix[middle + i][middle + i] != -1 {
       return matrix[middle + i][middle + i]
     }
@@ -149,6 +183,12 @@ func centerMatrix(matrix: [[Int]]) -> [[Int]] {
   
   let verticalShift = Int((Double(topMargin - bottomMargin)/2).rounded())
   let horizontalShift = Int((Double(leftMargin - rightMargin)/2).rounded())
+  
+  let verticalScale = (topMargin + bottomMargin) / 2
+  let horizontalScale = (leftMargin + rightMargin) / 2
+  let scale = min(verticalScale, horizontalScale)
+  
+  scaleFactor = 1.0 + (Double(scale) / Double(matrixSize))
   
   var centeredMatrix = matrix.shiftRight(amount: verticalShift)
   for i in 0..<matrixSize {

@@ -158,7 +158,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       let rect = results.first,
       let image = self.sudokuImage
       else {
-        print("Bäääääää")
+//        print("Bäääääää")
         detectingRectangles = false
         return
     }
@@ -200,7 +200,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         self.saveImage(image: UIImage(cgImage: cropImage), imageName: "kd_number\(i)\(j).png")
         
         guard let preparedImage = prepareImage(image: UIImage(cgImage: cropImage)) else {
-          print("----------> inner component error")
+          print("----------> prepared image error")
           detectingRectangles = false
           return
         }
@@ -238,7 +238,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         } else {
           for i in 1..<9 {
             if (sudokoArray.filter{ $0 == i }.count > 9) {
-               print("----------> too much doubles error")
+              print("----------> too much doubles error: \(i)")
+              print(self.sudokuMatrix)
               solutionCorrect = false
               continue
             }

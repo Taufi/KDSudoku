@@ -74,8 +74,8 @@ fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView:
     let bl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.bottomLeft), types: .existingPlaneUsingExtent)
     let br = sceneView.hitTest(sceneView.convertFromCamera(rectangle.bottomRight), types: .existingPlaneUsingExtent)
     
-    print("tl: \(tl.count) tr: \(tr.count) br: \(br.count) bl: \(bl.count)")
-    
+//    print("tl: \(tl.count) tr: \(tr.count) br: \(br.count) bl: \(bl.count)")
+  
     // Not all 4 corners will necessarily be found on the same plane,
     // but we only need 3 corners to define a rectangle.
     // For a set of 3 corners, we will filter out hitResults that don't
@@ -108,8 +108,8 @@ fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView:
         let brHit = surfaces[2].first,
         let anchor = tlHit.anchor as? ARPlaneAnchor {
         
-        print("Found top right corners: \(tlHit.worldVector), \(trHit.worldVector), \(brHit.worldVector)")
-        
+//        print("Found top right corners: \(tlHit.worldVector), \(trHit.worldVector), \(brHit.worldVector)")
+      
         return (.topRight(topLeft: tlHit.worldVector,
                           topRight: trHit.worldVector,
                           bottomRight: brHit.worldVector),
@@ -123,8 +123,8 @@ fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView:
         let brHit = surfaces[2].first,
         let anchor = tlHit.anchor as? ARPlaneAnchor {
         
-        print("Found bottom left corners: \(tlHit.worldVector), \(blHit.worldVector), \(brHit.worldVector)")
-        
+//        print("Found bottom left corners: \(tlHit.worldVector), \(blHit.worldVector), \(brHit.worldVector)")
+      
         return (.bottomLeft(topLeft: tlHit.worldVector,
                             bottomLeft: blHit.worldVector,
                             bottomRight: brHit.worldVector),
@@ -138,8 +138,8 @@ fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView:
         let brHit = surfaces[2].first,
         let anchor = trHit.anchor as? ARPlaneAnchor {
         
-        print("Found bottom right corners: \(trHit.worldVector), \(blHit.worldVector), \(brHit.worldVector)")
-        
+//        print("Found bottom right corners: \(trHit.worldVector), \(blHit.worldVector), \(brHit.worldVector)")
+      
         return (.bottomRight(topRight: trHit.worldVector,
                              bottomLeft: blHit.worldVector,
                              bottomRight: brHit.worldVector),
