@@ -22,46 +22,15 @@
                                 <rect key="frame" x="0.0" y="0.0" width="374" height="667"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </arscnView>
-                            <visualEffectView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FkF-wO-Ao3">
-                                <rect key="frame" x="29" y="38" width="330" height="324"/>
-                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="UgK-Bp-9sd">
-                                    <rect key="frame" x="0.0" y="0.0" width="330" height="324"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <subviews>
-                                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eII-cz-05g">
-                                            <rect key="frame" x="0.0" y="0.0" width="330" height="324"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <fontDescription key="fontDescription" name="CourierNewPS-BoldMT" family="Courier New" pointSize="16"/>
-                                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                        </textView>
-                                    </subviews>
-                                </view>
-                                <blurEffect style="extraLight"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                            </visualEffectView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
-                        <constraints>
-                            <constraint firstItem="FkF-wO-Ao3" firstAttribute="leading" secondItem="9XB-TO-OHL" secondAttribute="leadingMargin" constant="13" id="3LI-bf-8db"/>
-                            <constraint firstItem="FkF-wO-Ao3" firstAttribute="centerX" secondItem="9XB-TO-OHL" secondAttribute="centerX" constant="6.5" id="CPt-ca-Y63"/>
-                            <constraint firstItem="ARr-an-pDj" firstAttribute="top" secondItem="FkF-wO-Ao3" secondAttribute="top" constant="-18" id="JRs-Hl-ms6"/>
-                            <constraint firstItem="ARr-an-pDj" firstAttribute="bottom" secondItem="FkF-wO-Ao3" secondAttribute="bottom" constant="305" id="X3G-EH-cZz"/>
-                        </constraints>
                         <viewLayoutGuide key="safeArea" id="ARr-an-pDj"/>
                         <connections>
                             <outletCollection property="gestureRecognizers" destination="5Ho-Ou-Yes" appends="YES" id="kh6-Un-UNN"/>
                         </connections>
                     </view>
                     <connections>
-                        <outlet property="resultsConstraint" destination="JRs-Hl-ms6" id="cjz-eH-cNM"/>
-                        <outlet property="resultsTextView" destination="eII-cz-05g" id="hEb-z5-6xX"/>
-                        <outlet property="resultsView" destination="FkF-wO-Ao3" id="mI2-Hc-MDo"/>
                         <outlet property="sceneView" destination="EHH-PY-BHX" id="etp-Ra-0oa"/>
                     </connections>
                 </viewController>

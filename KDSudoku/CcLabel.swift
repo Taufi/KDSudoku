@@ -1,3 +1,9 @@
+//
+//  Created by Klaus Dresbach on 10.08.19.
+//  Copyright © 2019 Klaus Dresbach. All rights reserved.
+//  Many Thanks to Neil Ferguson: https://github.com/nfergu/cclabel
+//
+
 //KD 190721 Hier ist der connected-component-algoritmus implementiert.
 //          Der sieht so aus https://en.wikipedia.org/wiki/Connected-component_labeling
 //          Und die Implementierung war hier: https://github.com/nfergu/cclabel

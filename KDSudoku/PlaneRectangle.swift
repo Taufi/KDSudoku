@@ -2,8 +2,10 @@
 //  PlaneRectangle.swift
 //  ARKitRectangleDetection
 //
-//  Created by Melissa Ludowise on 8/5/17.
-//  Copyright © 2017 Mel Ludowise. All rights reserved.
+//  Created by Klaus Dresbach on 10.08.19.
+//  Copyright © 2019 Klaus Dresbach. All rights reserved.
+//
+//  Many thanks to Melissa Ludowise: https://github.com/mludowise/ARKitRectangleDetection
 //
 
 import Foundation
@@ -65,10 +67,6 @@ fileprivate enum RectangleCorners {
 fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView: ARSCNView) -> (corners: RectangleCorners, anchor: ARPlaneAnchor)? {
     
     // Perform a hittest on each corner to find intersecting surfaces
-//  print("Top Left ---> \(sceneView.convertFromCamera(rectangle.topLeft))")
-//  print("top right ---> \(sceneView.convertFromCamera(rectangle.topRight))")
-//  print("bottom left ---> \(sceneView.convertFromCamera(rectangle.bottomLeft))")
-//  print("bottom right ---> \(sceneView.convertFromCamera(rectangle.bottomRight))")
     let tl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.topLeft), types: .existingPlaneUsingExtent)
     let tr = sceneView.hitTest(sceneView.convertFromCamera(rectangle.topRight), types: .existingPlaneUsingExtent)
     let bl = sceneView.hitTest(sceneView.convertFromCamera(rectangle.bottomLeft), types: .existingPlaneUsingExtent)
@@ -137,9 +135,7 @@ fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView:
         let blHit = surfaces[1].first,
         let brHit = surfaces[2].first,
         let anchor = trHit.anchor as? ARPlaneAnchor {
-        
-//        print("Found bottom right corners: \(trHit.worldVector), \(blHit.worldVector), \(brHit.worldVector)")
-      
+    
         return (.bottomRight(topRight: trHit.worldVector,
                              bottomLeft: blHit.worldVector,
                              bottomRight: brHit.worldVector),

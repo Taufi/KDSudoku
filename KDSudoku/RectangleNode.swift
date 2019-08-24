@@ -2,8 +2,10 @@
 //  RectangleNode.swift
 //  ARKitRectangleDetection
 //
-//  Created by Melissa Ludowise on 8/3/17.
-//  Copyright © 2017 Mel Ludowise. All rights reserved.
+//  Created by Klaus Dresbach on 10.08.19.
+//  Copyright © 2019 Klaus Dresbach. All rights reserved.
+//
+//  Many thanks to Melissa Ludowise: https://github.com/mludowise/ARKitRectangleDetection
 //
 
 import UIKit
@@ -24,12 +26,9 @@ class RectangleNode: SCNNode {
     
     init(center position: SCNVector3, width: CGFloat, height: CGFloat, orientation: Float) {
         super.init()
-        
-        // Debug
-        //print("position: \(position) width: \(width) (\(width * meters2inches)\") height: \(height) (\(height * meters2inches)\")")
-        
+      
         // Create the 3D plane geometry with the dimensions calculated from corners
-        //Kd 190615 die Sudoku-Überdeckungen waren etwas schmal. Daher hier um 30% vergrößert
+        //KD 190615 die Sudoku-Überdeckungen waren etwas schmal. Daher hier um 30% vergrößert
         let planeGeometry = SCNPlane(width: width * 1.3, height: height)
         let rectNode = SCNNode(geometry: planeGeometry)
 
@@ -41,10 +40,6 @@ class RectangleNode: SCNNode {
         transform = SCNMatrix4Rotate(transform, orientation, 0, 1, 0)
         
         rectNode.transform = transform
-      
-//        let image = UIImage(named: "Sudoku.png")
-////        let image = drawSudoku()
-//        rectNode.geometry?.firstMaterial?.diffuse.contents = image
         
         // We add the new node to ourself since we inherited from SCNNode
         self.addChildNode(rectNode)

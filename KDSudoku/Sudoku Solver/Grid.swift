@@ -2,8 +2,9 @@
 //  Grid.swift
 //  Sudoku Solver
 //
-//  Created by Bernd Beuster on 23.10.14.
-//  Copyright (c) 2014 Bernd Beuster. All rights reserved.
+//  Created by Klaus Dresbach on 10.08.19.
+//  Many thanks to Bernd Beuster and Peter Norvig: https://github.com/pbing/Sudoku-Solver
+//  Copyright © 2019 Klaus Dresbach. All rights reserved.
 //
 
 import Foundation

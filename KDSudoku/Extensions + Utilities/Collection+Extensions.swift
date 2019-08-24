@@ -2,8 +2,10 @@
 //  Collection+Extensions.swift
 //  ARKitRectangleDetection
 //
-//  Created by Melissa Ludowise on 8/3/17.
-//  Copyright © 2017 Mel Ludowise. All rights reserved.
+//  Created by Klaus Dresbach on 10.08.19.
+//  Copyright © 2019 Klaus Dresbach. All rights reserved.
+//
+//  Many thanks to Melissa Ludowise: https://github.com/mludowise/ARKitRectangleDetection
 //
 
 import Foundation

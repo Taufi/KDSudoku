@@ -14,9 +14,6 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate {
 
   @IBOutlet var sceneView: ARSCNView!
-  @IBOutlet var resultsView: UIView!
-  @IBOutlet var resultsTextView: UITextView!
-  @IBOutlet var resultsConstraint: NSLayoutConstraint!
   
   var sudokuImage: UIImage?
   var firstTime = true
@@ -36,9 +33,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-  
-    resultsView.alpha = 0
-    
+
     sceneView.delegate = self
     sceneView.showsStatistics = true
     sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
@@ -68,32 +63,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
   
   @IBAction func screenTapped(_ sender: Any) {
-    hideResultsView()
     detectingRectangles = false
-  }
-  
-  
-  func showResultsView(delay: TimeInterval = 0.1) {
-    resultsConstraint.constant = 100
-    view.layoutIfNeeded()
-    
-    UIView.animate(withDuration: 0.5,
-                   delay: delay,
-                   usingSpringWithDamping: 0.6,
-                   initialSpringVelocity: 0.6,
-                   options: .beginFromCurrentState,
-                   animations: {
-                    self.resultsView.alpha = 1
-                    self.resultsConstraint.constant = -10
-                    self.view.layoutIfNeeded()
-    },
-                   completion: nil)
-  }
-  
-  func hideResultsView() {
-    UIView.animate(withDuration: 0.3) {
-      self.resultsView.alpha = 0
-    }
   }
   
   //KD 190610 Extrahiert die Ziffern aus dem Sudoku
@@ -108,9 +78,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       do {
         
         let model = numbers()
-//        let model = keras_mnist_cnn()
-//        let model = MNISTClassifier()
-        //TODO viertes Modell?
         let visionModel = try VNCoreMLModel(for: model.model)
         let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
           self?.processObservations(for: request, completion: completion, error: error)
@@ -129,7 +96,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     DispatchQueue.main.async {
       if let results = request.results as? [VNClassificationObservation] {
         if results.isEmpty {
-          self.resultsTextView.text = "nichts gefunden"
+          print("Fehler: nichts gefunden")
         } else {
           if let resultValue = Int(results[0].identifier) {
             let value = resultValue > 9 ? 0 : resultValue
@@ -138,9 +105,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           //TODO - leeres Feld -> hier muss ich nichts machen, da die Sudoku-Matrix standardmäßig eine 0 enthält
         }
       } else if let error = error {
-        self.resultsTextView.text = "Fehler: \(error.localizedDescription)"
+        print("Fehler: \(error.localizedDescription)")
       } else {
-        self.resultsTextView.text = "???"
+        print("???")
       }
     }
   }
@@ -392,8 +359,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // (vgl. App "KDSudoku - stehendes Bild"). Liegt wohl daran, dass ich das Bild von Hand drehe?
     
     sudokuImage = uiImage
-
-    //KD 190406 In den folgenden zwei statements könnte ich auch sudokuImage verwenden, da Vison die Koordinaten des entdeckten Rechtecks in relativen Werten (zwischen 0.0 und 1.0) zurückgibt
     let cgOrientation = CGImagePropertyOrientation(uiImage.imageOrientation)
     
     // Fire off request based on URL of chosen photo.
@@ -428,16 +393,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
   //KD 190610 Debug-Hilfsfunktion, die Bilder abspeicher t
   func saveImage(image: UIImage, imageName: String){
-    
-    //create an instance of the FileManager
     let fileManager = FileManager.default
-    //get the image path
     let imagePath = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString).appendingPathComponent(imageName)
-    //get the image we took with camera
-//    let image = imageView.image!
-    //get the PNG data for this image
     let data = image.pngData()
-    //store it in the document directory
     fileManager.createFile(atPath: imagePath as String, contents: data, attributes: nil)
   }
   
@@ -451,10 +409,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     let surface = SurfaceNode(anchor: anchor)
     surfaceNodes[anchor] = surface
     node.addChildNode(surface)
-    
-//    if message == .helpFindSurface {
-//      message = .helpTapHoldRect
-//    }
   }
   
   func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
