@@ -87,6 +87,7 @@ class Grid: CustomStringConvertible {
     /* Eliminate all the other values (except d) from values[s] and propagate.
     Return values, except return nil if a contradiction is detected. */
     func assign(_ s: Int, d: Int) -> [Square]? {
+      if values.count < s - 1 { return nil } //KD 190824 
         var otherValues = values[s]
         otherValues.removeDigit(d)
         

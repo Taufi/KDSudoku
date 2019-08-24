@@ -257,9 +257,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             units.append(squareUnits(s))
             peers.append(squarePeers(s).allObjects as! [Int])
           }
-          print(grid)
+          print("----> " + grid)
+          
           let res = solve(grid)
-          print(res)
+          if res.values.count < 81 {
+            self.detectingRectangles = false
+            return
+          }
+          
           
           let values = res.values.map { NSString(string: "\($0)") }
           for i in 0..<rows * columns {
