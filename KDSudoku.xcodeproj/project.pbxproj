@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6101623D230DBA1600BBC4C3 /* utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6101623A230DBA1600BBC4C3 /* utilities.swift */; };
+		6101623E230DBA1600BBC4C3 /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6101623B230DBA1600BBC4C3 /* Grid.swift */; };
+		6101623F230DBA1600BBC4C3 /* Square.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6101623C230DBA1600BBC4C3 /* Square.swift */; };
 		6113620C22FF091700F896F7 /* Array+ShiftRight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6113620B22FF091700F896F7 /* Array+ShiftRight.swift */; };
 		6113620E22FF095F00F896F7 /* PrepareImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6113620D22FF095F00F896F7 /* PrepareImage.swift */; };
 		612D8D2222E39F6800F419AF /* MNISTClassifier.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 612D8D2122E39F6800F419AF /* MNISTClassifier.mlmodel */; };
@@ -29,6 +32,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6101623A230DBA1600BBC4C3 /* utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = utilities.swift; sourceTree = "<group>"; };
+		6101623B230DBA1600BBC4C3 /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
+		6101623C230DBA1600BBC4C3 /* Square.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Square.swift; sourceTree = "<group>"; };
 		6113620B22FF091700F896F7 /* Array+ShiftRight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+ShiftRight.swift"; sourceTree = "<group>"; };
 		6113620D22FF095F00F896F7 /* PrepareImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrepareImage.swift; sourceTree = "<group>"; };
 		612D8D2122E39F6800F419AF /* MNISTClassifier.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = MNISTClassifier.mlmodel; sourceTree = "<group>"; };
@@ -63,6 +69,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		61016239230DB9D400BBC4C3 /* Sudoku Solver */ = {
+			isa = PBXGroup;
+			children = (
+				6101623B230DBA1600BBC4C3 /* Grid.swift */,
+				6101623C230DBA1600BBC4C3 /* Square.swift */,
+				6101623A230DBA1600BBC4C3 /* utilities.swift */,
+			);
+			path = "Sudoku Solver";
+			sourceTree = "<group>";
+		};
 		6134919122401E0500D4BF57 = {
 			isa = PBXGroup;
 			children = (
@@ -82,6 +98,7 @@
 		6134919C22401E0500D4BF57 /* KDSudoku */ = {
 			isa = PBXGroup;
 			children = (
+				61016239230DB9D400BBC4C3 /* Sudoku Solver */,
 				613B543022AC0DB000177176 /* Extensions + Utilities */,
 				613491B1224021D800D4BF57 /* numbers.mlmodel */,
 				6197FD1122DE5B7B00672072 /* keras_mnist_cnn.mlmodel */,
@@ -194,6 +211,7 @@
 				613491A022401E0500D4BF57 /* ViewController.swift in Sources */,
 				612D8D2222E39F6800F419AF /* MNISTClassifier.mlmodel in Sources */,
 				613491B022401FC700D4BF57 /* CGImagePropertyOrientation.swift in Sources */,
+				6101623D230DBA1600BBC4C3 /* utilities.swift in Sources */,
 				61EC9E9F22AD7C6200EF40D5 /* PlaneRectangle.swift in Sources */,
 				613B543822AC0E0D00177176 /* ARHitTestResult+Extensions.swift in Sources */,
 				613B542D22AC0CEC00177176 /* RectangleNode.swift in Sources */,
@@ -201,7 +219,9 @@
 				6197FD1222DE5B7C00672072 /* keras_mnist_cnn.mlmodel in Sources */,
 				6134919E22401E0500D4BF57 /* AppDelegate.swift in Sources */,
 				613491B2224021D800D4BF57 /* numbers.mlmodel in Sources */,
+				6101623F230DBA1600BBC4C3 /* Square.swift in Sources */,
 				6113620E22FF095F00F896F7 /* PrepareImage.swift in Sources */,
+				6101623E230DBA1600BBC4C3 /* Grid.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

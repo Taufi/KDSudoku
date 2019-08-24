@@ -246,20 +246,30 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           }
         }
         
-        //KD 190610 Liegt ein vernünftiges Ergebnis vor? Falls weniger als 15 Ziffern, dann nicht.
         if solutionCorrect  {
-          var sudokuPrint = ""
+          var grid = ""
           for i in 0..<9 {
             for j in 0..<9 {
-              let printChar = self.sudokuMatrix[i][j] == 0 ? " _ " : " \(self.sudokuMatrix[i][j]) "
-              sudokuPrint.append("\(printChar)")
+              grid.append(String(self.sudokuMatrix[i][j]))
             }
-            sudokuPrint.append("\n\n")
           }
-          self.resultsTextView.text = sudokuPrint
+          for s in 0..<(rows * columns) {
+            units.append(squareUnits(s))
+            peers.append(squarePeers(s).allObjects as! [Int])
+          }
+          print(grid)
+          let res = solve(grid)
+          print(res)
+          
+          let values = res.values.map { NSString(string: "\($0)") }
+          for i in 0..<rows * columns {
+            if let matrixEntry = Int(String(values[i])) {
+               self.sudokuMatrix[i/9][i%9] = matrixEntry
+            }
+          }
+      
           self.pathLayer?.removeFromSuperlayer()
           self.pathLayer = nil
-//          self.showResultsView()
           self.addSolution(for: rect)
         } else {
           self.detectingRectangles = false
