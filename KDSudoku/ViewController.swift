@@ -19,7 +19,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   var firstTime = true
   var detectingRectangles = false
   
-  var sudokuMatrix = Array(repeating: Array(repeating: 0, count: 9), count: 9)
+  var sudokuArray = Array(repeating: 0, count: rows * columns)
   
   //KD 190502: siehe Erläuterung in AppDelegate
   let queue = DispatchQueue(label: "de.klausdresbach.digit-recognition-queue")
@@ -54,10 +54,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
 
   func initArray() {
-    for i in 0..<9 {
-      for j in 0..<9 {
-        sudokuMatrix[i][j] = 0
-      }
+    for i in 0..<rows * columns {
+        sudokuArray[i] = 0
     }
   }
   
@@ -176,7 +174,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
         //KD 190610 Entschlüsseln der Ziffern
         self.classify(image: preparedImage) { (value) in
-          self.sudokuMatrix[i][j] = value
+          self.sudokuArray[i * columns + j] = value
         }
   
         //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
@@ -191,22 +189,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     group.notify(queue: queue) { //KD 190502: siehe Erläuterung in AppDelegate
       DispatchQueue.main.async {
        
-        var sudokoArray = [Int]()
-        for i in 0..<9 {
-          sudokoArray += self.sudokuMatrix[i].filter { $0 > 0}
-        }
+        var sudokuCheck = [Int]()
+          sudokuCheck += self.sudokuArray.filter { $0 > 0}
         
         //KD 190611 Oft werden "falsche" Sudokus entdeckt, die aus einer großen Zahl identischer Ziffern
         //          bestehen. Die filtere ich hier raus. Und Sudokus, die weniger als 16 Ziffern haben.
         var solutionCorrect = true
-        if sudokoArray.count < 16 {
+        if sudokuCheck.count < 16 {
         //  print("----------> less than 16 error")
           solutionCorrect = false
         } else {
           for i in 1..<9 {
-            if (sudokoArray.filter{ $0 == i }.count > 9) {
+            if (sudokuCheck.filter{ $0 == i }.count > 9) {
               print("----------> too much doubles error: \(i)")
-              print(self.sudokuMatrix)
+              print(self.sudokuArray)
               solutionCorrect = false
               continue
             }
@@ -214,17 +210,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
         
         if solutionCorrect  {
-          var grid = ""
-          for i in 0..<9 {
-            for j in 0..<9 {
-              grid.append(String(self.sudokuMatrix[i][j]))
-            }
-          }
+          
+          let grid = self.sudokuArray.reduce ("", { String($0) + (String($1)) })
+      
           for s in 0..<(rows * columns) {
             units.append(squareUnits(s))
             peers.append(squarePeers(s).allObjects as! [Int])
           }
-         // print("----> " + grid)
           
           let res = solve(grid)
           if res.values.count < 81 {
@@ -235,8 +227,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           
           let values = res.values.map { NSString(string: "\($0)") }
           for i in 0..<rows * columns {
-            if let matrixEntry = Int(String(values[i])) {
-               self.sudokuMatrix[i/9][i%9] = matrixEntry
+            if let valuesEntry = Int(String(values[i])) {
+               self.sudokuArray[i] = valuesEntry
             }
           }
       
@@ -462,7 +454,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           ctx.cgContext.setLineWidth(2)
           ctx.cgContext.stroke(CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57), width: 57, height: 57))
         
-          let string = sudokuMatrix[col][row] == 0 ? "" : String(sudokuMatrix[col][row])
+          let string = sudokuArray[col * columns + row] == 0 ? "" : String(sudokuArray[col * columns + row])
          
           //KD 190825 nur zum Test
           attrs[NSAttributedString.Key.foregroundColor] = col == 5 && row == 5 ? UIColor.blue : UIColor.black
