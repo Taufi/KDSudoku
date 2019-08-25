@@ -14,12 +14,18 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate {
 
   @IBOutlet var sceneView: ARSCNView!
+
+  fileprivate struct SudokuDigit {
+    var digit: Int
+    var wasSet: Bool = false
+  }
   
   var sudokuImage: UIImage?
   var firstTime = true
   var detectingRectangles = false
   
-  var sudokuArray = Array(repeating: 0, count: rows * columns)
+  fileprivate let initDigit = SudokuDigit(digit: 0, wasSet: false)
+  fileprivate var sudokuArray = [SudokuDigit]()
   
   //KD 190502: siehe Erläuterung in AppDelegate
   let queue = DispatchQueue(label: "de.klausdresbach.digit-recognition-queue")
@@ -54,9 +60,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
 
   func initArray() {
-    for i in 0..<rows * columns {
-        sudokuArray[i] = 0
-    }
+    sudokuArray = Array(repeating: initDigit, count: rows * columns)
+//    sudokuArray = Array(repeating: 0, count: rows * columns)
   }
   
   
@@ -174,7 +179,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // muss aber nicht sein, da dies eine callback-Funktion von VNDetectRectanglesRequest ist
         //KD 190610 Entschlüsseln der Ziffern
         self.classify(image: preparedImage) { (value) in
-          self.sudokuArray[i * columns + j] = value
+          self.sudokuArray[i * columns + j].digit = value
+          self.sudokuArray[i * columns + j].wasSet = value > 0
         }
   
         //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
@@ -190,7 +196,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       DispatchQueue.main.async {
        
         var sudokuCheck = [Int]()
-          sudokuCheck += self.sudokuArray.filter { $0 > 0}
+        
+        sudokuCheck += self.sudokuArray.map { $0.digit } .filter { $0 > 0}
         
         //KD 190611 Oft werden "falsche" Sudokus entdeckt, die aus einer großen Zahl identischer Ziffern
         //          bestehen. Die filtere ich hier raus. Und Sudokus, die weniger als 16 Ziffern haben.
@@ -202,7 +209,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           for i in 1..<9 {
             if (sudokuCheck.filter{ $0 == i }.count > 9) {
               print("----------> too much doubles error: \(i)")
-              print(self.sudokuArray)
+//              print(self.sudokuArray)
               solutionCorrect = false
               continue
             }
@@ -211,7 +218,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         if solutionCorrect  {
           
-          let grid = self.sudokuArray.reduce ("", { String($0) + (String($1)) })
+//          let grid = self.sudokuArray.reduce ("", { String($0.digit) + String($1.digit) })
+          
+          let grid = self.sudokuArray.map { $0.digit }.reduce ("", { String($0) + String($1) })
       
           for s in 0..<(rows * columns) {
             units.append(squareUnits(s))
@@ -228,7 +237,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           let values = res.values.map { NSString(string: "\($0)") }
           for i in 0..<rows * columns {
             if let valuesEntry = Int(String(values[i])) {
-               self.sudokuArray[i] = valuesEntry
+               self.sudokuArray[i].digit = valuesEntry
             }
           }
       
@@ -432,8 +441,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     var attrs: [NSAttributedString.Key: Any] = [
       //      .font: UIFont.systemFont(ofSize: 32),
-      .font: UIFont(name: "ArialMT", size: 32)!,
-      //      .font: UIFont(name: "Arial-BoldMT", size: 32)!,
+//      .font: UIFont(name: "ArialMT", size: 32)!,
+      .font: UIFont(name: "Arial-BoldMT", size: 32)!,
       .paragraphStyle: paragraphStyle,
 //      .foregroundColor: UIColor.green
     ]
@@ -454,10 +463,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           ctx.cgContext.setLineWidth(2)
           ctx.cgContext.stroke(CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57), width: 57, height: 57))
         
-          let string = sudokuArray[col * columns + row] == 0 ? "" : String(sudokuArray[col * columns + row])
+          let entry = sudokuArray[col * columns + row]
+          let string = entry.digit == 0 ? "" : String(entry.digit)
          
-          //KD 190825 nur zum Test
-          attrs[NSAttributedString.Key.foregroundColor] = col == 5 && row == 5 ? UIColor.blue : UIColor.black
+          attrs[NSAttributedString.Key.foregroundColor] = entry.wasSet ? UIColor.black : UIColor.red
           
           let attributedString = NSAttributedString(string: string, attributes: attrs)
           attributedString.draw(with: CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57 + 10), width: 57, height: 57), options: .usesLineFragmentOrigin, context: nil)
