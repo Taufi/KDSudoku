@@ -200,7 +200,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         //          bestehen. Die filtere ich hier raus. Und Sudokus, die weniger als 16 Ziffern haben.
         var solutionCorrect = true
         if sudokoArray.count < 16 {
-          print("----------> less than 16 error")
+        //  print("----------> less than 16 error")
           solutionCorrect = false
         } else {
           for i in 1..<9 {
@@ -224,7 +224,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             units.append(squareUnits(s))
             peers.append(squarePeers(s).allObjects as! [Int])
           }
-          print("----> " + grid)
+         // print("----> " + grid)
           
           let res = solve(grid)
           if res.values.count < 81 {
@@ -438,13 +438,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     let paragraphStyle = NSMutableParagraphStyle()
     paragraphStyle.alignment = .center
     
-    
-    
-    let attrs: [NSAttributedString.Key: Any] = [
+    var attrs: [NSAttributedString.Key: Any] = [
       //      .font: UIFont.systemFont(ofSize: 32),
       .font: UIFont(name: "ArialMT", size: 32)!,
       //      .font: UIFont(name: "Arial-BoldMT", size: 32)!,
-      .paragraphStyle: paragraphStyle
+      .paragraphStyle: paragraphStyle,
+//      .foregroundColor: UIColor.green
     ]
     
     
@@ -465,9 +464,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
           let string = sudokuMatrix[col][row] == 0 ? "" : String(sudokuMatrix[col][row])
          
+          //KD 190825 nur zum Test
+          attrs[NSAttributedString.Key.foregroundColor] = col == 5 && row == 5 ? UIColor.blue : UIColor.black
+          
           let attributedString = NSAttributedString(string: string, attributes: attrs)
           attributedString.draw(with: CGRect(x: CGFloat(row * 57), y: CGFloat(col * 57 + 10), width: 57, height: 57), options: .usesLineFragmentOrigin, context: nil)
-          
+           ctx.cgContext.setStrokeColor(UIColor.black.cgColor)
         }
       }
     }
