@@ -21,10 +21,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   }
   
   var sudokuImage: UIImage?
-  var firstTime = true
   var detectingRectangles = false
   
-  fileprivate let initDigit = SudokuDigit(digit: 0, wasSet: false)
   fileprivate var sudokuArray = [SudokuDigit]()
   
   //KD 190502: siehe Erläuterung in AppDelegate
@@ -60,8 +58,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   
 
   func initArray() {
+    let initDigit = SudokuDigit(digit: 0, wasSet: false)
     sudokuArray = Array(repeating: initDigit, count: rows * columns)
-//    sudokuArray = Array(repeating: 0, count: rows * columns)
   }
   
   
@@ -79,7 +77,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     queue.async(group: group) { //KD 190502: siehe Erläuterung in AppDelegate
       let handler = VNImageRequestHandler(ciImage: ciImage, orientation: orientation)
       do {
-        
         let model = numbers()
         let visionModel = try VNCoreMLModel(for: model.model)
         let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
@@ -105,7 +102,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             let value = resultValue > 9 ? 0 : resultValue
             completion(value)
           }
-          //TODO - leeres Feld -> hier muss ich nichts machen, da die Sudoku-Matrix standardmäßig eine 0 enthält
+          // leeres Feld -> hier muss ich nichts machen, da der Sudoku-Array standardmäßig die digit 0 enthält
         }
       } else if let error = error {
         print("Fehler: \(error.localizedDescription)")
@@ -128,7 +125,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       let rect = results.first,
       let image = self.sudokuImage
       else {
-//        print("Bäääääää")
         detectingRectangles = false
         return
     }
@@ -167,7 +163,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           detectingRectangles = false
           return
         }
-        self.saveImage(image: UIImage(cgImage: cropImage), imageName: "kd_number\(i)\(j).png")
+        
+//KD 190826 Debug
+//        self.saveImage(image: UIImage(cgImage: cropImage), imageName: "kd_number\(i)\(j).png")
         
         guard let preparedImage = prepareImage(image: UIImage(cgImage: cropImage)) else {
           print("----------> prepared image error")
@@ -183,9 +181,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
           self.sudokuArray[i * columns + j].wasSet = value > 0
         }
   
-        //KD 190430 - das hatte ich vorher auf dem Main Thread (ist Quatsch) -> App hing dann,
-        // wenn ich sie auf dem Device laufen ließ. Simulator und Photo Library ging.
-        self.saveImage(image: preparedImage, imageName: "number\(i)\(j).png")
+//KD 190826 Debug
+//        self.saveImage(image: preparedImage, imageName: "number\(i)\(j).png")
         
       }
     }
@@ -208,7 +205,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         } else {
           for i in 1..<9 {
             if (sudokuCheck.filter{ $0 == i }.count > 9) {
-              print("----------> too much doubles error: \(i)")
+//              print("----------> too much doubles error: \(i)")
 //              print(self.sudokuArray)
               solutionCorrect = false
               continue
@@ -217,30 +214,22 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
         
         if solutionCorrect  {
-          
-//          let grid = self.sudokuArray.reduce ("", { String($0.digit) + String($1.digit) })
-          
           let grid = self.sudokuArray.map { $0.digit }.reduce ("", { String($0) + String($1) })
-      
           for s in 0..<(rows * columns) {
             units.append(squareUnits(s))
             peers.append(squarePeers(s).allObjects as! [Int])
           }
-          
           let res = solve(grid)
           if res.values.count < 81 {
             self.detectingRectangles = false
             return
           }
-          
-          
           let values = res.values.map { NSString(string: "\($0)") }
           for i in 0..<rows * columns {
             if let valuesEntry = Int(String(values[i])) {
                self.sudokuArray[i].digit = valuesEntry
             }
           }
-      
           self.pathLayer?.removeFromSuperlayer()
           self.pathLayer = nil
           self.addSolution(for: rect)
@@ -252,7 +241,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   }
   
   //KD 190610 hier soll nun die Lösung der AR "auf das ungelöste Sudoku gelegt werden"
-  //KD 190610 funktioniert noch nicht
   private func addSolution(for observedRect: VNRectangleObservation) {
     
     // Convert to 3D coordinates
@@ -356,9 +344,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   func detectRectangles(uiImage: UIImage) {
     initArray()
     
-    //KD 190511 hier muss ich keine scaleAndOrient-Methode aufrufen
-    // (vgl. App "KDSudoku - stehendes Bild"). Liegt wohl daran, dass ich das Bild von Hand drehe?
-    
     sudokuImage = uiImage
     let cgOrientation = CGImagePropertyOrientation(uiImage.imageOrientation)
     
@@ -392,13 +377,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
   }
   
-  //KD 190610 Debug-Hilfsfunktion, die Bilder abspeicher t
-  func saveImage(image: UIImage, imageName: String){
-    let fileManager = FileManager.default
-    let imagePath = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString).appendingPathComponent(imageName)
-    let data = image.pngData()
-    fileManager.createFile(atPath: imagePath as String, contents: data, attributes: nil)
-  }
+//KD 190610 Debug-Hilfsfunktion, die Bilder abspeichert
+//  func saveImage(image: UIImage, imageName: String){
+//    let fileManager = FileManager.default
+//    let imagePath = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString).appendingPathComponent(imageName)
+//    let data = image.pngData()
+//    fileManager.createFile(atPath: imagePath as String, contents: data, attributes: nil)
+//  }
   
   // MARK: - ARSCNViewDelegate
   
@@ -429,7 +414,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     surface.removeFromParentNode()
-    
     surfaceNodes.removeValue(forKey: anchor)
   }
   
@@ -440,11 +424,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     paragraphStyle.alignment = .center
     
     var attrs: [NSAttributedString.Key: Any] = [
-      //      .font: UIFont.systemFont(ofSize: 32),
-//      .font: UIFont(name: "ArialMT", size: 32)!,
       .font: UIFont(name: "Arial-BoldMT", size: 32)!,
       .paragraphStyle: paragraphStyle,
-//      .foregroundColor: UIColor.green
     ]
     
     
@@ -474,11 +455,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
       }
     }
-    
     return img
   }
   
 }
+
+// MARK: - ARSessionDelegate
 
 extension ViewController: ARSessionDelegate{
   
@@ -545,27 +527,4 @@ extension ViewController: ARSessionDelegate{
 
 }
 
-//KD 190525 von hier: https://stackoverflow.com/questions/40882487/how-to-rotate-image-in-swift
-//KD 190610 dreht das Bild um 90°, da es in landscape-Format ankommt
-extension UIImage {
-  func rotate(radians: CGFloat) -> UIImage {
-    let rotatedSize = CGRect(origin: .zero, size: size)
-      .applying(CGAffineTransform(rotationAngle: CGFloat(radians)))
-      .integral.size
-    UIGraphicsBeginImageContext(rotatedSize)
-    if let context = UIGraphicsGetCurrentContext() {
-      let origin = CGPoint(x: rotatedSize.width / 2.0,
-                           y: rotatedSize.height / 2.0)
-      context.translateBy(x: origin.x, y: origin.y)
-      context.rotate(by: radians)
-      draw(in: CGRect(x: -origin.y, y: -origin.x,
-                      width: size.width, height: size.height))
-      let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
-      UIGraphicsEndImageContext()
-      
-      return rotatedImage ?? self
-    }
-    return self
-  }
-  
-}
+

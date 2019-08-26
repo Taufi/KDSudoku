@@ -1,8 +1,8 @@
 //
-//  CGImagePropertyOrientation.swift
+//  CGImagePropertyOrientation+Extensions.swift
 //  KDSudoku
 //
-//  Created by Klaus Dresbach on 18.03.19.
+//  Created by Klaus Dresbach on 26.08.19.
 //  Copyright © 2019 Klaus Dresbach. All rights reserved.
 //
 
@@ -35,4 +35,3 @@ extension CGImagePropertyOrientation {
     }
   }
 }
-

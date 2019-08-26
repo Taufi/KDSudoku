@@ -18,13 +18,14 @@
 		613491A322401E0500D4BF57 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 613491A122401E0500D4BF57 /* Main.storyboard */; };
 		613491A522401E0900D4BF57 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 613491A422401E0900D4BF57 /* Assets.xcassets */; };
 		613491A822401E0900D4BF57 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 613491A622401E0900D4BF57 /* LaunchScreen.storyboard */; };
-		613491B022401FC700D4BF57 /* CGImagePropertyOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613491AF22401FC700D4BF57 /* CGImagePropertyOrientation.swift */; };
 		613491B2224021D800D4BF57 /* numbers.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 613491B1224021D800D4BF57 /* numbers.mlmodel */; };
 		613B542D22AC0CEC00177176 /* RectangleNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B542C22AC0CEC00177176 /* RectangleNode.swift */; };
 		613B543422AC0DE000177176 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543122AC0DE000177176 /* UIView+Extensions.swift */; };
 		613B543522AC0DE000177176 /* Collection+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543222AC0DE000177176 /* Collection+Extensions.swift */; };
 		613B543622AC0DE000177176 /* SCNVector3+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543322AC0DE000177176 /* SCNVector3+Extensions.swift */; };
 		613B543822AC0E0D00177176 /* ARHitTestResult+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613B543722AC0E0D00177176 /* ARHitTestResult+Extensions.swift */; };
+		61BC17E123145F9A00A35A15 /* UIImage+Rotate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61BC17E023145F9A00A35A15 /* UIImage+Rotate.swift */; };
+		61BC17E32314651900A35A15 /* CGImagePropertyOrientation+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61BC17E22314651900A35A15 /* CGImagePropertyOrientation+Extensions.swift */; };
 		61BF945322E78F2300EE634E /* CcLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61BF945222E78F2200EE634E /* CcLabel.swift */; };
 		61EC9E9F22AD7C6200EF40D5 /* PlaneRectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */; };
 /* End PBXBuildFile section */
@@ -43,13 +44,14 @@
 		613491A422401E0900D4BF57 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		613491A722401E0900D4BF57 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		613491A922401E0900D4BF57 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		613491AF22401FC700D4BF57 /* CGImagePropertyOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImagePropertyOrientation.swift; sourceTree = "<group>"; };
 		613491B1224021D800D4BF57 /* numbers.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = numbers.mlmodel; sourceTree = "<group>"; };
 		613B542C22AC0CEC00177176 /* RectangleNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RectangleNode.swift; sourceTree = "<group>"; };
 		613B543122AC0DE000177176 /* UIView+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 		613B543222AC0DE000177176 /* Collection+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+Extensions.swift"; sourceTree = "<group>"; };
 		613B543322AC0DE000177176 /* SCNVector3+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SCNVector3+Extensions.swift"; sourceTree = "<group>"; };
 		613B543722AC0E0D00177176 /* ARHitTestResult+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ARHitTestResult+Extensions.swift"; sourceTree = "<group>"; };
+		61BC17E023145F9A00A35A15 /* UIImage+Rotate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Rotate.swift"; sourceTree = "<group>"; };
+		61BC17E22314651900A35A15 /* CGImagePropertyOrientation+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGImagePropertyOrientation+Extensions.swift"; sourceTree = "<group>"; };
 		61BF945222E78F2200EE634E /* CcLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CcLabel.swift; sourceTree = "<group>"; };
 		61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaneRectangle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -96,12 +98,10 @@
 			children = (
 				61016239230DB9D400BBC4C3 /* Sudoku Solver */,
 				613B543022AC0DB000177176 /* Extensions + Utilities */,
-				613491B1224021D800D4BF57 /* numbers.mlmodel */,
+				61BC17E4231465A700A35A15 /* ML-Model */,
 				6134919D22401E0500D4BF57 /* AppDelegate.swift */,
 				6134919F22401E0500D4BF57 /* ViewController.swift */,
 				61BF945222E78F2200EE634E /* CcLabel.swift */,
-				6113620B22FF091700F896F7 /* Array+ShiftRight.swift */,
-				6113620D22FF095F00F896F7 /* PrepareImage.swift */,
 				61337EB622B0217700A34C77 /* SurfaceNode.swift */,
 				61EC9E9E22AD7C6200EF40D5 /* PlaneRectangle.swift */,
 				613B542C22AC0CEC00177176 /* RectangleNode.swift */,
@@ -109,7 +109,6 @@
 				613491A422401E0900D4BF57 /* Assets.xcassets */,
 				613491A622401E0900D4BF57 /* LaunchScreen.storyboard */,
 				613491A922401E0900D4BF57 /* Info.plist */,
-				613491AF22401FC700D4BF57 /* CGImagePropertyOrientation.swift */,
 			);
 			path = KDSudoku;
 			sourceTree = "<group>";
@@ -117,12 +116,24 @@
 		613B543022AC0DB000177176 /* Extensions + Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				6113620B22FF091700F896F7 /* Array+ShiftRight.swift */,
 				613B543722AC0E0D00177176 /* ARHitTestResult+Extensions.swift */,
 				613B543222AC0DE000177176 /* Collection+Extensions.swift */,
 				613B543322AC0DE000177176 /* SCNVector3+Extensions.swift */,
 				613B543122AC0DE000177176 /* UIView+Extensions.swift */,
+				61BC17E023145F9A00A35A15 /* UIImage+Rotate.swift */,
+				61BC17E22314651900A35A15 /* CGImagePropertyOrientation+Extensions.swift */,
+				6113620D22FF095F00F896F7 /* PrepareImage.swift */,
 			);
 			path = "Extensions + Utilities";
+			sourceTree = "<group>";
+		};
+		61BC17E4231465A700A35A15 /* ML-Model */ = {
+			isa = PBXGroup;
+			children = (
+				613491B1224021D800D4BF57 /* numbers.mlmodel */,
+			);
+			path = "ML-Model";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -203,10 +214,11 @@
 				613B543622AC0DE000177176 /* SCNVector3+Extensions.swift in Sources */,
 				61337EB722B0217700A34C77 /* SurfaceNode.swift in Sources */,
 				613491A022401E0500D4BF57 /* ViewController.swift in Sources */,
-				613491B022401FC700D4BF57 /* CGImagePropertyOrientation.swift in Sources */,
+				61BC17E123145F9A00A35A15 /* UIImage+Rotate.swift in Sources */,
 				6101623D230DBA1600BBC4C3 /* utilities.swift in Sources */,
 				61EC9E9F22AD7C6200EF40D5 /* PlaneRectangle.swift in Sources */,
 				613B543822AC0E0D00177176 /* ARHitTestResult+Extensions.swift in Sources */,
+				61BC17E32314651900A35A15 /* CGImagePropertyOrientation+Extensions.swift in Sources */,
 				613B542D22AC0CEC00177176 /* RectangleNode.swift in Sources */,
 				613B543522AC0DE000177176 /* Collection+Extensions.swift in Sources */,
 				6134919E22401E0500D4BF57 /* AppDelegate.swift in Sources */,

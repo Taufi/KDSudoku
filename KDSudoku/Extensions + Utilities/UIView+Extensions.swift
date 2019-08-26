@@ -8,7 +8,6 @@
 //  Many thanks to Melissa Ludowise https://github.com/mludowise/ARKitRectangleDetection
 //
 
-import Foundation
 import UIKit
 
 extension UIView {

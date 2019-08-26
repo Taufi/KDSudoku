@@ -73,7 +73,6 @@ func getCenteredImage(from inputImage: UIImage) -> UIImage? {
   }
   
   let centeredMatrix =  labelNr != -1 ? centerMatrix(matrix: binarMatrix) : binarMatrix
-  
   var pixels = [PixelData]()
   
   let black = PixelData(a: 255, r: 0, g: 0, b: 0)

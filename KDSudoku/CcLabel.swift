@@ -44,15 +44,13 @@ class CcLabel {
         let height = data.count
      
         var labelMerges = [Int: Set<Int>]()
-        
-//        var outputData: [[Int]] = Array(count: height, repeatedValue: [])
+      
         var outputData: [[Int]] = Array(repeating: [], count: height)
         
         var label = 0
      
         for row in 0 ..< height {
         
-//            var outputRow: [Int] = Array(count: width, repeatedValue: -1)
             var outputRow: [Int] = Array(repeating: -1, count: width)
           
             let currentRow = data[row]

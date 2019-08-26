@@ -91,8 +91,8 @@ fileprivate func getCorners(for rectangle: VNRectangleObservation, in sceneView:
         let blHit = surfaces[2].first,
         let anchor = tlHit.anchor as? ARPlaneAnchor {
         
-        print("Found top left corners: \(tlHit.worldVector), \(trHit.worldVector), \(blHit.worldVector)")
-        
+//        print("Found top left corners: \(tlHit.worldVector), \(trHit.worldVector), \(blHit.worldVector)")
+      
         return (.topLeft(topLeft: tlHit.worldVector,
                          topRight: trHit.worldVector,
                          bottomLeft: blHit.worldVector),

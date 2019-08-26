@@ -17,13 +17,8 @@
 //          Beispiel-App von hier ist: https://developer.apple.com/documentation/vision/detecting_objects_in_still_images
 //
 //KD 190514 to do
-//  - benötige ich die Klassenvariablen imageWidth und imageHeight wirklich - erledigt (rausgeschmissen)
-//  - eigentlich reicht es, nur ein Rechteck zu drawen (gehe noch mit dem Array rein, das kann
-//    irreführend sein, wenn ich zwei Suokus anzeige aber nur eines löse) - erledigt
 //  - Capture-Frequenz erhöhen (auch mal richtig hoch ;-)) - erledigt
 //
-//KD 190517 Anzeige des erkannten Sudoku im resultsTextView
-
 
 import UIKit
 
@@ -31,7 +26,6 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
-
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
