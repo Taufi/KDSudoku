@@ -22,15 +22,51 @@
                                 <rect key="frame" x="0.0" y="0.0" width="374" height="667"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </arscnView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Md1-5K-CfP">
+                                <rect key="frame" x="16" y="613" width="62" height="34"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="calibratedRGB"/>
+                                <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <inset key="contentEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
+                                <state key="normal" title="Debug">
+                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <state key="selected">
+                                    <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="onDebugButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SxP-1I-M27"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mMx-M6-CzN" userLabel="Clear Sudokus Button">
+                                <rect key="frame" x="243" y="613" width="116" height="34"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="calibratedRGB"/>
+                                <inset key="contentEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
+                                <state key="normal" title="Clear Sudokus">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="onClearButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Zau-ym-oW7"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
+                        <constraints>
+                            <constraint firstItem="Md1-5K-CfP" firstAttribute="leading" secondItem="9XB-TO-OHL" secondAttribute="leadingMargin" id="639-tO-iWH"/>
+                            <constraint firstItem="mMx-M6-CzN" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Md1-5K-CfP" secondAttribute="trailing" constant="8" symbolic="YES" id="VkB-vL-Odj"/>
+                            <constraint firstItem="mMx-M6-CzN" firstAttribute="baseline" secondItem="Md1-5K-CfP" secondAttribute="baseline" id="h47-bM-aan"/>
+                            <constraint firstItem="mMx-M6-CzN" firstAttribute="trailing" secondItem="9XB-TO-OHL" secondAttribute="trailingMargin" id="htl-Rf-f8N"/>
+                            <constraint firstItem="ARr-an-pDj" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Md1-5K-CfP" secondAttribute="trailing" symbolic="YES" id="jrE-M9-vUl"/>
+                            <constraint firstAttribute="bottom" secondItem="Md1-5K-CfP" secondAttribute="bottom" constant="20" symbolic="YES" id="peE-8f-Bhm"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="ARr-an-pDj"/>
                         <connections>
                             <outletCollection property="gestureRecognizers" destination="5Ho-Ou-Yes" appends="YES" id="kh6-Un-UNN"/>
                         </connections>
                     </view>
                     <connections>
+                        <outlet property="clearButton" destination="mMx-M6-CzN" id="qTV-4w-Cfj"/>
+                        <outlet property="debugButton" destination="Md1-5K-CfP" id="Hdj-J6-86q"/>
                         <outlet property="sceneView" destination="EHH-PY-BHX" id="etp-Ra-0oa"/>
                     </connections>
                 </viewController>

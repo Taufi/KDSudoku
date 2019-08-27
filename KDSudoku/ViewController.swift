@@ -14,10 +14,22 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate {
 
   @IBOutlet var sceneView: ARSCNView!
-
+  @IBOutlet weak var debugButton: UIButton!
+  @IBOutlet weak var clearButton: UIButton!
+  
   fileprivate struct SudokuDigit {
     var digit: Int
     var wasSet: Bool = false
+  }
+  
+  var showDebugOptions = false {
+    didSet {
+      if showDebugOptions {
+        sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints, ARSCNDebugOptions.showWorldOrigin]
+      } else {
+        sceneView.debugOptions = []
+      }
+    }
   }
   
   var sudokuImage: UIImage?
@@ -35,12 +47,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   // Used to lookup SurfaceNodes by planeAnchor and update them
   private var surfaceNodes = [ARPlaneAnchor:SurfaceNode]()
   
+  // RectangleNodes with keys for rectangleObservation.uuid
+  private var rectangleNodes = [VNRectangleObservation:RectangleNode]()
+  
   override func viewDidLoad() {
     super.viewDidLoad()
 
     sceneView.delegate = self
-    sceneView.showsStatistics = true
-    sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
+    sceneView.showsStatistics = false
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -56,6 +70,23 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     sceneView.session.pause()
   }
   
+  @IBAction func onDebugButton(_ sender: Any) {
+    showDebugOptions = !showDebugOptions
+    debugButton.isSelected = showDebugOptions
+    
+    if showDebugOptions {
+      debugButton.layer.backgroundColor = UIColor.yellow.cgColor
+      debugButton.layer.borderColor = UIColor.yellow.cgColor
+    } else {
+      debugButton.layer.backgroundColor = UIColor.black.withAlphaComponent(0.5).cgColor
+      debugButton.layer.borderColor = UIColor.white.cgColor
+    }
+  }
+  
+  @IBAction func onClearButton(_ sender: Any) {
+    rectangleNodes.forEach({ $1.removeFromParentNode() })
+    rectangleNodes.removeAll()
+  }
 
   func initArray() {
     let initDigit = SudokuDigit(digit: 0, wasSet: false)
@@ -251,14 +282,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     let rectangleNode = RectangleNode(planeRectangle)
-    
+    rectangleNodes[observedRect] = rectangleNode
     if let rectNode = rectangleNode.childNodes.first {
       rectNode.geometry?.firstMaterial?.diffuse.contents = drawSudoku()
     } else {
        print("----------> rect node error")
     }
     sceneView.scene.rootNode.addChildNode(rectangleNode)
-    
   }
 
 
